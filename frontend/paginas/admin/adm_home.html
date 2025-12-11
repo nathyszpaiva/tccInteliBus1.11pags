@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADM - Painel de Controle</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+
+    <style>
+        /* ========================================================== */
+        /* 🎨 PALETA DE CORES */
+        /* ========================================================== */
+        :root {
+            --cor-rosa: #84AFFB;
+            --cor-azul: #B7CF4F;
+            --cor-laranja: #FF6648;
+
+            --cor-fundo-escuro: #333;
+            --cor-link-footer: #0c48a1;
+        }
+
+        /* ========================================================== */
+        /* 📌 ESTRUTURA PARA FIXAR O FOOTER NO FINAL */
+        /* ========================================================== */
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            background: #f5f5f5;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            /* 🔥 empurra o footer para o fim */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ========================================================== */
+        /* 🖱️ NOVOS CARDS (Estilo mais proporcional e moderno) */
+        /* ========================================================== */
+
+        .home-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            padding: 20px;
+            max-width: 900px;
+            margin: 20px auto;
+        }
+
+        .action-button {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            height: 160px;
+            padding: 20px;
+
+            border-radius: 18px;
+            color: white !important;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+            transition: all 0.25s ease-in-out;
+        }
+
+        .home-grid a:nth-child(1) {
+            background: var(--cor-rosa);
+        }
+
+        .home-grid a:nth-child(2) {
+            background: var(--cor-azul);
+        }
+
+        .home-grid a:nth-child(3) {
+            background: var(--cor-laranja);
+        }
+
+        .action-button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 26px rgba(0, 0, 0, 0.20);
+        }
+
+        .action-button span {
+            margin-top: 6px;
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 768px) {
+            .home-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-button {
+                height: 120px;
+                font-size: 16px;
+            }
+        }
+
+        /* ========================================================== */
+        /* 🏗️ FOOTER */
+        /* ========================================================== */
+        .footer {
+            background-color: #ffffff;
+            color: #000000;
+            padding: 40px 20px 20px;
+            font-family: Arial, sans-serif;
+            border-top: 1px solid #ddd;
+            margin-top: 40px;
+        }
+
+        .footer-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: auto;
+            gap: 40px;
+        }
+
+        .footer-section {
+            flex: 1 1 300px;
+        }
+
+        .footer-section h3,
+        .footer-section .subtitulo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #000000;
+            margin-bottom: 15px;
+        }
+
+        .footer-section.contact p {
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .footer-section img {
+            margin-right: 8px;
+            min-width: 20px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-section li {
+            margin-bottom: 8px;
+        }
+
+        .footer-section a {
+            text-decoration: none;
+            color: #555;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .footer-section a:hover {
+            color: var(--cor-link-footer);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 15px;
+            font-size: 14px;
+            color: #777;
+            border-top: 1px solid #eee;
+        }
+    </style>
+
+    <script>
+        const userRole = localStorage.getItem('userRole');
+        if (userRole !== 'adm') {
+            window.location.href = "../passageiro/login.html";
+        }
+    </script>
+</head>
+
+<body>
+
+    <div class="content-wrapper">
+
+        <div class="top-banner">
+            <a href="adm_home.html">
+                <img src="/frontend/assets/logo/logo.png" alt="Logo">
+            </a>
+        </div>
+
+        <div class="linha-degrade"></div>
+
+        <div class="menu-icon" onclick="openMenu()">
+            <img src="/frontend/assets/icones/icone_menu.png" alt="Menu" class="menu-img">
+        </div>
+
+        <div id="sideMenu" class="side-menu">
+            <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+            <a href="adm_home.html">Página Inicial</a>
+            <a href="adm_paineis.html">Painéis</a>
+            <a href="adm_pontos.html">Pontos</a>
+            <a href="adm_linhas.html">Linhas</a>
+        </div>
+
+        <div class="container" style="padding-top: 20px;">
+            <h1>Controle Administrativo</h1>
+
+            <div class="home-grid">
+                <a href="adm_linhas.html" class="action-button">
+                    <span>Gerenciar Linhas</span>
+                </a>
+
+                <a href="adm_paineis.html" class="action-button">
+                    <span>Gerenciar Painéis</span>
+                </a>
+
+                <a href="adm_pontos.html" class="action-button">
+                    <span>Gerenciar Pontos</span>
+                </a>
+            </div>
+        </div>
+
+    </div> <!-- fecha content-wrapper -->
+
+    <footer class="footer">
+        <div class="footer-container">
+
+            <div class="footer-section links">
+                <h3>Mapa do site</h3>
+                <ul>
+                    <li><a href="adm_home.html">Página Inicial</a></li>
+                    <li><a href="adm_paineis.html">Painéis</a></li>
+                    <li><a href="adm_pontos.html">Pontos</a></li>
+                    <li><a href="adm_linhas.html">Linhas</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section contact">
+                <h3>Contato</h3>
+                <p><img src="/frontend/assets/icones/icone_email.png" alt=""> intelibus@gmail.com</p>
+                <p><img src="/frontend/assets/icones/icone_telefone.png" alt=""> (19) 0000-0000</p>
+            </div>
+
+            <div class="footer-section social-media">
+                <h3>Redes Sociais</h3>
+                <p><img src="/frontend/assets/icones/icone_instagram.png" alt=""><a href="#"> Instagram</a></p>
+                <p><img src="/frontend/assets/icones/icone_facebook.png" alt=""><a href="#"> Facebook</a></p>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2025 INTELIBUS - CNPJ 00 000 000/0000-00. | Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        function openMenu() {
+            document.getElementById("sideMenu").style.width = "250px";
+        }
+        function closeMenu() {
+            document.getElementById("sideMenu").style.width = "0";
+        }
+    </script>
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+    </script>
+
+</body>
+
+</html>

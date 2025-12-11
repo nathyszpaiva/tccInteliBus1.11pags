@@ -1,0 +1,954 @@
+/*
+ * style.css
+ * Estilos Padronizados para InteliBus
+ * Organizado por Seções Lógicas para facilitar a manutenção.
+ */
+
+/* ==================================== */
+/* 🌐 0. ESTILOS GERAIS E BASE 🌐 */
+/* ==================================== */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+    padding-bottom: 70px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* ==================================== */
+/* 🖼️ 1. BANNER, LOGO E MENU LATERAL 🖼️ */
+/* ==================================== */
+
+.top-banner {
+    width: 100%;
+    height: 100px;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.top-banner img {
+    width: 195px;
+}
+.linha-degrade {
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #0259DD, #B7CF4F, #FF6648);
+    
+    /* ADICIONE ISSO: */
+    display: block;
+    flex-shrink: 0; 
+    z-index: 10; /* Garante que fique acima de outros elementos se houver sobreposição */
+}
+
+/* Menu lateral */
+.menu-icon {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    cursor: pointer;
+}
+
+.menu-icon img.menu-img {
+    width: 48px;
+    height: 48px;
+}
+
+.side-menu {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 999;
+    top: 0;
+    left: 0;
+    background-color: #0c48a1;
+    overflow-x: hidden;
+    transition: 0.3s;
+    padding-top: 60px;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+}
+
+.side-menu a {
+    display: block;
+    padding: 12px 20px;
+    font-size: 18px;
+    color: #fafafa;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.side-menu a:hover {
+    background-color: #083270;
+    color: #ffffff;
+}
+
+.side-menu .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 36px;
+}
+
+/* ==================================== */
+/* 💳 2. CARDS E FORMULÁRIOS 💳 */
+/* ==================================== */
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.card {
+    width: 100%;
+    max-width: 400px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
+/* Campos de Input e Select */
+label {
+    display: block;
+    margin: 10px 0 5px;
+    font-size: 14px;
+}
+
+select, input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+/* ==================================== */
+/* 🟢 3. BOTÕES GERAIS E AÇÕES 🟢 */
+/* ==================================== */
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #0259DD;
+    color: white;
+    border: none;
+    border-radius: 60px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #0c48a1;
+}
+
+/* Botão de Exclusão ou Ação Secundária */
+.action-button.delete-button {
+    background-color: #FF6648;
+    padding: 8px 15px;
+    border-radius: 10px;
+    font-weight: normal;
+    font-size: 14px;
+    width: auto;
+}
+.action-button.delete-button:hover {
+    background-color: #e05c3c;
+}
+
+
+/* ==================================== */
+/* 4️⃣ MODAIS (Cadastros, Informações, etc.) 4️⃣ */
+/* ==================================== */
+
+/* 1. ESTILO PARA O MODAL (Container principal) */
+.modal {
+    display: none; /* Esconde o modal por padrão */
+    position: fixed; /* Fica fixo sobre o conteúdo */
+    z-index: 1000; /* Garante que fique acima de tudo */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4); /* Fundo preto semi-transparente */
+}
+
+/* 2. ESTILO PARA O CONTEÚDO DO MODAL (Onde está o X e o texto) */
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* Centraliza verticalmente e horizontalmente */
+    
+    /* 🔑 AJUSTE DE TAMANHO 🔑 */
+    /* Reduz o padding lateral (ex: 30px topo/baixo, 20px lado) para compactar */
+    padding: 60px 25px; 
+    
+    border: 1px solid #888;
+    
+    /* Reduz a largura máxima para o card ficar mais estreito, ajustado ao conteúdo */
+    max-width: 800px; 
+    
+    border-radius: 10px;
+    position: relative; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 3. POSICIONAMENTO DO BOTÃO DE FECHAR (X) */
+.close-button {
+    color: #aaa;
+    position: absolute; 
+    /* Ajustado para compensar o novo padding, mantendo no canto */
+    top: 15px; 
+    right: 15px; 
+    
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Efeito Hover e Foco para o X */
+.close-button:hover,
+.close-button:focus {
+    color: #000; /* Fica preto ao passar o mouse */
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* 4. ESTILO DAS CORES DAS NOTIFICAÇÕES */
+
+/* Estilo geral dos parágrafos no modal (tipos de notificação) */
+.modal-content p {
+    font-size: 16px; 
+    margin: 12px 0; /* Espaçamento entre os itens */
+    font-weight: 500;
+}
+
+
+/* Mudança de Rota - Azul */
+.blue-text {
+    color: #0259dd; 
+}
+
+/* Atraso - Verde */
+.green-text {
+    color: #b7cf4f; 
+}
+
+/* Superlotação - Amarelo */
+.yellow-text {
+    color: #e3bb1c; 
+}
+
+/* Emergência - Laranja */
+.red-text { 
+    color: #ff6648; 
+}
+
+/* Estilo para o título do modal */
+.modal-content h2 {
+    font-size: 22px;
+    margin-top: 5px;
+    margin-bottom: 25px; /* Espaçamento abaixo do título */
+    text-align: center;
+}
+
+/* ==================================== */
+/* 🖥️ 5. ADM_PAINEIS.HTML - ESTILOS ESPECÍFICOS 🖥️ */
+/* ==================================== */
+
+/* Alinha Título e Botão de Cadastro */
+.painel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.painel-header h2 {
+    margin: 0;
+    text-align: left;
+}
+
+.painel-header button {
+    width: auto;
+    padding: 8px 15px;
+    font-size: 14px;
+    border-radius: 10px;
+}
+
+/* Estilos da Lista de Painéis */
+.painel-list {
+    list-style: none;
+    padding: 0;
+}
+
+.painel-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 10px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border-left: 5px solid #0259DD;
+}
+
+.painel-details strong {
+    display: block;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 5px;
+}
+.painel-details span {
+    display: block;
+    font-size: 14px;
+    color: #666;
+}
+
+/* Responsividade para o header (em telas menores) */
+@media screen and (max-width: 480px) {
+    .painel-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .painel-header button {
+        margin-top: 10px;
+        width: 100%;
+    }
+}
+
+/* ==================================== */
+/* 🏡 6. ESTILOS DE TELA PRINCIPAL (Index/Home) 🏡 */
+/* ==================================== */
+
+/* Ajustes para a tela de seleção inicial (Index.html) */
+.index-card {
+    width: 100%;
+    max-width: 400px;
+    margin: 80px auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.index-card h2 {
+    margin-bottom: 30px;
+    color: #000000;
+}
+
+.index-button {
+    display: block;
+    width: 100%;
+    margin-top: 15px;
+    padding: 12px;
+    font-size: 18px;
+    /* Certifique-se de que a cor do texto seja visível */
+    color: white; 
+    border: none; 
+    cursor: pointer;
+}
+
+/* --- Cores Iniciais --- */
+
+#logarBtn {
+    /* Cor de fundo: Rosa */
+    background-color: #FF6648; /* Hot Pink */
+}
+
+#cadastrarBtn {
+    /* Cor de fundo: Verde */
+    background-color: #B7CF4F
+; /* Medium Sea Green */
+}
+
+/* --- Cores ao Passar o Mouse (Hover) --- */
+
+#logarBtn:hover {
+    /* Rosa mais escuro para o hover */
+    background-color: #f83710; /* Deep Pink */
+}
+
+#cadastrarBtn:hover {
+    /* Verde mais escuro para o hover */
+    background-color: #a3c50a
+; /* Sea Green */
+}
+
+/* Mapa e Pesquisa (Home.html) */
+.map-container {
+    width: 100%;
+    height: 300px;
+    background-color: #e0e0e0;
+    margin-top: 20px;
+}
+
+.input-group-wrapper {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    padding: 0 10px;
+}
+
+.input-group {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.input-line {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.icon {
+    margin-right: 10px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    padding: 0;
+}
+
+.icon img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+}
+
+.input-line .location-field {
+    margin-top: 2px;
+    margin-bottom: 2px;
+    border-radius: 5px;
+}
+
+.swap-button {
+    border: none;
+    background-color: transparent;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    margin-left: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    padding: 0;
+}
+
+.swap-button:hover {
+    background-color: #e0e0e0;
+}
+
+.swap-button img {
+    width: 40px;
+    height: 30px;
+}
+
+/* Controle Segmentado (Home.html) */
+.segmented-control-container {
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-radius: 20px;
+}
+
+.segmented-control {
+    display: flex;
+    background-color: #e0e0e0;
+    border-radius: 60px;
+    padding: 4px;
+    margin-bottom: 15px;
+}
+
+.segment-button {
+    flex-grow: 1;
+    padding: 8px 15px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: #555;
+    background-color: transparent;
+    border-radius: 55px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.segment-button:not(.active):hover {
+    background-color: #d0d0d0;
+    color: #333;
+}
+
+.segment-button.active {
+    background-color: #ffffff;
+    color: #333;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 55px;
+}
+
+.content-area {
+    padding: 10px 15px;
+}
+
+.tab-content {
+    display: none;
+    padding: 20px;
+    border-radius: 20px;
+    background-color: white;
+    margin-top: 10px;
+    border: 1px solid #ddd;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.location-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.location-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.location-icon img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+}
+
+.location-details {
+    flex-grow: 1;
+    font-size: 16px;
+    line-height: 1.4;
+    color: #333;
+}
+
+/* ==================================== */
+/* 👤 7. PERFIL.HTML - ESTILOS ESPECÍFICOS 👤 */
+/* ==================================== */
+
+.profile-form input[type="text"],
+.profile-form input[type="email"],
+.profile-form input[type="password"] {
+    margin-bottom: 0;
+}
+        
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-size: 14px;
+    color: #555;
+    flex-basis: 30%;
+}
+
+.info-value {
+    font-size: 16px;
+    color: #333;
+    font-weight: 500;
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.info-value input {
+    padding: 5px 0;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    background: transparent;
+}
+
+.action-icon {
+    color: #aaa;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.info-item-editable .info-value {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 0 10px;
+}
+
+.info-item-editable .info-value input {
+    width: 100%;
+}
+
+.icon_sobre{
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+}
+
+/* ==================================== */
+/* 🔔 8. NOTIFICAÇÕES.HTML - ESTILOS ESPECÍFICOS 🔔 */
+/* ==================================== */
+
+/* Container Principal da Página de Notificações */
+.notification-page-container {
+    max-width: 600px; /* Limita a largura do conteúdo principal */
+    margin: 0 auto; /* Centraliza o container na página */
+    padding: 0 15px;
+}
+
+/* ------------------------------------ */
+/* BARRA DE CABEÇALHO (Notificações + Ícone Info) */
+/* ------------------------------------ */
+.header-bar {
+    display: flex;
+    justify-content: space-between; /* Alinha 'Notificações' à esquerda e o botão à direita */
+    align-items: center; /* Centraliza verticalmente o título e o botão */
+    padding: 15px 0;
+    margin-bottom: 20px;
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.header-bar h1 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+}
+
+/* Botão de Informações (Ícone no Canto Direito) */
+.info-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0; /* Remove padding para que a área clicável fique justa ao ícone */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Para telas menores ou margens internas, ajuste este valor: */
+    margin-left: 10px; 
+}
+
+/* Garante que o botão NÃO tenha efeito de fundo ou borda ao passar o mouse */
+.info-button:hover {
+    background: none; 
+    border: none;
+    /* Se houver algum 'transform' ou 'opacity' que você queira remover: */
+    /* opacity: 1; */ 
+}
+
+.info-button img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+/* ------------------------------------ */
+/* LISTA DE NOTIFICAÇÕES */
+/* ------------------------------------ */
+.notification-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    /* padding: 15px 0; <-- Removido, pois o padding abaixo já define */
+    border-bottom: 1px solid #eee;
+    background-color: white;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 15px; /* Padding interno do item */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.bus-icon {
+    flex-shrink: 0; /* Impede que o ícone do ônibus encolha */
+    margin-right: 15px;
+}
+
+.bus-icon img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.notification-content {
+    flex-grow: 1; /* Permite que o conteúdo da notificação ocupe o espaço restante */
+}
+
+.notification-content h3 {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0 0 5px 0;
+    color: #0259DD; /* Cor principal para o título da notificação */
+}
+
+.notification-content p {
+    font-size: 14px;
+    color: #555;
+    margin: 0;
+    line-height: 1.4;
+}
+/* ==================================== */
+/* 🦶 9. RODAPÉ (Footer) 🦶 */
+/* ==================================== */
+
+
+.footer {
+  background-color: #ffffff;
+  color: #000000;
+  padding: 40px 20px 20px;
+  font-family: Arial, sans-serif;
+  margin-bottom:10px;
+  border-top: 1px solid #ddd;
+}
+
+
+.footer-container {
+  display: flex;
+
+  flex-wrap: wrap;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: auto;
+ 
+  gap: 40px; 
+}
+.footer-section {
+  flex: 1 1 300px;
+  margin: 10px;
+}
+
+.footer-section.about h2 {
+  font-size: 28px;
+  margin-bottom: 15px;
+}
+.footer-section.about p {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.footer-section.contact h3 {
+  margin-bottom: 15px;
+  color:#000000;
+}
+.footer-section.contact {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+.footer-section.contact p {
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  margin-bottom: 10px;
+}
+.footer-section.contact i {
+  margin-right: 8px;
+  min-width: 20px;
+  text-align: center;
+}
+.footer-bottom {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 15px;
+  font-size: 14px;
+  color: #777;
+}
+
+.footer-section.links h3 {
+    margin-bottom: 15px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #000000;
+}
+
+.footer-section.links ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-section.links li {
+    margin-bottom: 8px;
+}
+
+.footer-section.links a {
+    text-decoration: none;
+    color: #555555;
+    font-size: 16px;
+    transition: color 0.2s;
+}
+
+.footer-section.links a:hover {
+    color: #0c48a1;
+}
+
+/* ==================================== */
+/* 📱 10. RESPONSIVIDADE GERAL 📱 */
+/* ==================================== */
+@media screen and (max-width: 600px) {
+    .top-banner {
+        height: 120px;
+        font-size: 20px;
+    }
+
+    .card {
+        margin: 10px;
+        padding: 15px;
+    }
+}
+
+/* ==================================== */
+/* 1. ESTILO PARA CARDS LADO A LADO     */
+/* ==================================== */
+
+/* Container Principal dos Cards */
+.cards-gerais-container {
+    max-width: 1200px; /* Limita a largura para centralizar o conteúdo */
+    margin: 0 auto 50px auto; /* Centraliza e adiciona margem inferior */
+    padding: 0 20px;
+}
+
+/* O container que usa Flexbox para alinhar os cards horizontalmente */
+.card-container-sobre {
+    display: flex;
+    flex-wrap: wrap; /* Permite que os cards quebrem a linha em telas menores */
+    justify-content: space-between; /* Distribui o espaço entre os cards */
+    gap: 20px; /* Espaçamento entre os cards */
+}
+
+/* Estilo individual de cada Card */
+.card-sobre {
+    flex: 1 1 300px; /* Flex-grow, Flex-shrink, Flex-basis: Permite que cresçam/encolham, mas tentam manter 300px */
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    text-align: center;
+    transition: transform 0.3s ease;
+    
+}
+
+.card-sobre:hover {
+    transform: translateY(-5px); /* Efeito sutil ao passar o mouse */
+}
+
+.icon-sobre {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 15px;
+}
+
+.titulo-card-sobre {
+    color: #000000; /* Exemplo de cor primária */
+    font-size: 1.5em;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+/* Media Query para responsividade em telas menores (cards em coluna) */
+@media (max-width: 900px) {
+    .card-container-sobre {
+        flex-direction: column; /* Coloca os cards um abaixo do outro em telas menores */
+    }
+    .card-sobre {
+        flex: 1 1 100%;
+    }
+}
+
+
+/* ==================================== */
+/* 2. ESTILO PARA O CARD GRANDE DO VÍDEO DO SOBRE */
+/* ==================================== */
+
+.container-sobre-video {
+    background-color: #f8f8f8; /* Fundo leve para destacar a seção */
+    padding: 50px 20px;
+    text-align: center;
+}
+
+.sobre-card-video {
+    max-width: 900px; /* Tamanho máximo do "card grandão" */
+    margin: 0 auto;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    padding: 40px;
+}
+
+.titulo-video {
+    font-size: 2.2em;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Contém o iframe, garantindo que o vídeo seja responsivo */
+.video-placeholder {
+    width: 100%;
+    /* Mantém a proporção 16:9 (altura/largura * 100) */
+    position: relative;
+    padding-bottom: 56.25%; /* (9 / 16 * 100) */ 
+    height: 0; 
+    margin-bottom: 25px;
+}
+
+.video-embed-sobre {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px; /* Borda arredondada para o vídeo */
+}
+
+.texto-video-abaixo {
+    font-size: 1.1em;
+    line-height: 1.6;
+    text-align: left;
+    color: #555;
+    margin-top: 20px;
+}

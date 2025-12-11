@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+
+    <style>
+        /* ========================================================== */
+        /* 📌 ESTRUTURA PARA FIXAR O FOOTER NO FINAL (Sticky Footer) */
+        /* ========================================================== */
+        :root {
+            /* Adicionado para os links do footer */
+            --cor-link-footer: #0c48a1;
+        }
+
+        html,
+        body {
+            height: 100%;
+            /* Garante 100% da altura da viewport */
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            /* Organiza o conteúdo verticalmente */
+            background: #f5f5f5;
+            /* Cor de fundo leve, se for o padrão */
+        }
+
+        .content-wrapper {
+            flex: 1;
+            /* 🔥 Empurra o footer para o fim, ocupando o espaço restante */
+            display: flex;
+            flex-direction: column;
+            /* Adicionado padding-bottom para um respiro */
+            padding-bottom: 20px;
+        }
+
+        /* 🖼️ DIV CONTAINER (Estilo do adm_home para centralizar e limitar a largura) */
+        .container {
+            max-width: 1200px;
+            width: 90%;
+            margin: 0 auto;
+            padding-top: 20px;
+        }
+
+        /* ========================================================== */
+        /* 🏗️ ESTILOS DO FOOTER (Copiado de adm_home.txt) */
+        /* ========================================================== */
+        .footer {
+            background-color: #ffffff;
+            color: #000000;
+            padding: 40px 20px 20px;
+            font-family: Arial, sans-serif;
+            border-top: 1px solid #ddd;
+            /* Removido o margin-top excessivo, já que o content-wrapper gerencia o espaço */
+        }
+
+        .footer-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: auto;
+            gap: 40px;
+        }
+
+        .footer-section {
+            flex: 1 1 300px;
+        }
+
+        .footer-section h3,
+        .footer-section .subtitulo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #000000;
+            margin-bottom: 15px;
+        }
+
+        .footer-section.contact p {
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        /* Ajuste para imagens do footer: use o width de 20px, padronizado no adm_home.txt */
+        .footer-section img {
+            margin-right: 8px;
+            min-width: 20px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .footer-section a {
+            text-decoration: none;
+            color: #555;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .footer-section a:hover {
+            color: var(--cor-link-footer);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 15px;
+            font-size: 14px;
+            color: #777;
+            border-top: 1px solid #eee;
+        }
+
+        /* Estilos de Utilidade */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Estilos do Card (Reforço de Formatação) */
+        .card {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        /* ... restante dos estilos do card, omitidos aqui por brevidade ... */
+        .card label {
+            display: block;
+            text-align: left;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .card input[type="email"],
+        .card input[type="text"],
+        .card input[type="password"],
+        .card select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .card button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            /* Cor primária */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+
+        .card button:hover {
+            background-color: #0056b3;
+        }
+
+        /* 🚀 CORREÇÃO DE DESIGN: GARANTE A REMOÇÃO DA LINHA EM TODOS OS ESTADOS */
+        .card p a {
+            color: #007bff !important;
+            /* Usa a cor primária, forçando a aplicação */
+            text-decoration: none !important;
+            /* Remove a linha debaixo */
+            font-weight: bold;
+            /* Deixa o link mais destacado */
+            transition: color 0.3s;
+        }
+
+        .card p a:hover {
+            color: #0056b3 !important;
+            /* Escurece um pouco no hover */
+            text-decoration: none !important;
+            /* <<< CORREÇÃO PRINCIPAL: Garante que a linha não volte no hover */
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module">
+        // ==========================================================
+        // 🚀 PASSO 1: INICIALIZAÇÃO DO FIREBASE E AUTH
+        // ==========================================================
+
+        // Importa as funções necessárias do Firebase SDK Modular
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import {
+            getAuth,
+            signInWithEmailAndPassword
+        } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+        import {
+            getFirestore
+        } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+
+        // Sua configuração do Firebase (MANTIDA)
+        const firebaseConfig = {
+            apiKey: "AIzaSyC1HmcMKzovu2LM7RmxBq5f6zsun76YZIs",
+            authDomain: "intelibustcc.firebaseapp.com",
+            projectId: "intelibustcc",
+            storageBucket: "intelibustcc.firebasestorage.app",
+            messagingSenderId: "212399344112",
+            appId: "1:212399344112:web:03dbb7d367f554445c83535",
+            measurementId: "G-RWN8EMEW63"
+        };
+
+        // Inicializa o Firebase
+        const app = initializeApp(firebaseConfig);
+
+        // Inicializa o serviço de Autenticação e Firestore
+        window.auth = getAuth(app);
+        window.db = getFirestore(app);
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+    </script>
+
+    <div class="content-wrapper">
+        <div class="top-banner">
+            <a href="home.html">
+                <img src="/frontend/assets/logo/logo.png" alt="Logo"></a>
+        </div>
+        <div class="linha-degrade"></div>
+
+        <div class="container">
+            <div class="card">
+                <h2>Login </h2>
+
+                <div id="authMessage" style="color: red; margin-bottom: 15px;"></div>
+
+                <label for="role">Selecione o tipo de acesso</label>
+                <select id="role">
+                    <option value="">Selecione...</option>
+                    <option value="usuario">Usuário</option>
+                    <option value="adm">Administrador</option>
+                    <option value="painel">Painel</option>
+                </select>
+
+                <div id="camposLogin" class="hidden">
+
+                    <label id="label_email" for="email_u_a" class="hidden">Email</label>
+                    <input type="email" id="email_u_a" name="email_u_a" placeholder="Digite seu email" class="hidden"
+                        required>
+
+                    <label id="label_id_p" for="id_p" class="hidden">ID ou Email do Painel</label>
+                    <input type="text" id="id_p" name="id_p" placeholder="Digite o ID ou o Email do Painel"
+                        class="hidden" required>
+
+                    <label id="label_codigo_a" for="codigo_a" class="hidden">Código de Acesso Secreto</label>
+                    <input type="password" id="codigo_a" name="codigo_a" placeholder="Código de Segurança"
+                        class="hidden" required>
+
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" name="password" placeholder="Digite a senha" required>
+
+                    <button id="entrarBtn">Entrar</button>
+                </div>
+
+                <p style="margin-top: 15px;">Ainda não tem conta? <a href="cadastro.html">Cadastre-se</a></p>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="footer-container">
+
+            <div class="footer-section about">
+                <p>A Intelibus é um sistema de transporte coletivo inteligente, com foco em melhorar a experiência do
+                    usuário, otimizar a operação dos ônibus e modernizar a mobilidade urbana.</p>
+            </div>
+
+            <div class="footer-section contact">
+                <h3 class="subtitulo">Contato</h3>
+                <p><img src="/frontend/assets/icones/icone_email.png" alt="Icone E-mail"> intelibus@gmail.com</p>
+                <p><img src="/frontend/assets/icones/icone_telefone.png" alt="icon telefone"> (19) 0000-0000</p>
+            </div>
+
+            <div class="footer-section social-media">
+                <h3 class="subtitulo">Redes Sociais </h3>
+                <p><img src="/frontend/assets/icones/icone_instagram.png" alt="Icone Instagram"><a
+                        href="https://www.instagram.com/"> Instagram</a></p>
+                <p><img src="/frontend/assets/icones/icone_facebook.png" alt="Icone Facebook"><a
+                        href="https://www.facebook.com/?locale=pt_BR"> Facebook</a></p>
+            </div>
+
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 INTELIBUS - CNPJ 00 000 000/0000-00. | Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+    </script>
+    <script>
+        // ==========================================================
+        // 💾 PASSO 2: LÓGICA DE INTERAÇÃO E LOGIN
+        // ==========================================================
+
+        // 🚨 CÓDIGO SECRETO PARA LOGIN DE ADMINISTRADOR
+        const CODIGO_MESTRE_ADM = "ADM_InteliBus@2025!";
+
+        // 🔑 SENHA PADRÃO DO PAINEL (Mantida, mas agora verificada)
+        const PAINEL_DEFAULT_PASSWORD = "intelibus123";
+
+        const roleSelect = document.getElementById("role");
+        const camposLoginDiv = document.getElementById("camposLogin");
+
+        // Elementos Email
+        const emailInput = document.getElementById("email_u_a");
+        const labelEmail = document.getElementById("label_email");
+
+        // Elementos ID Painel
+        const idPainelInput = document.getElementById("id_p");
+        const labelIdPainel = document.getElementById("label_id_p");
+
+        // Elementos Código ADM
+        const codigoAdmInput = document.getElementById("codigo_a");
+        const labelCodigoAdm = document.getElementById("label_codigo_a");
+
+        // Elementos Comuns
+        const passwordInput = document.getElementById("password");
+        const entrarBtn = document.getElementById("entrarBtn");
+        const messageDiv = document.getElementById("authMessage");
+
+        /**
+         * Reseta a visibilidade de todos os campos de login
+         */
+        function resetVisibility() {
+            // Garante que o container principal esteja visível, mas os campos individuais não.
+            camposLoginDiv.classList.add("hidden");
+            labelEmail.classList.add("hidden");
+            emailInput.classList.add("hidden");
+            labelIdPainel.classList.add("hidden");
+            idPainelInput.classList.add("hidden");
+            labelCodigoAdm.classList.add("hidden");
+            codigoAdmInput.classList.add("hidden");
+
+            // Limpa o valor dos campos ao mudar a função para evitar dados incorretos
+            emailInput.value = '';
+            idPainelInput.value = '';
+            codigoAdmInput.value = '';
+            passwordInput.value = '';
+
+            messageDiv.textContent = "";
+        }
+
+        // Lógica para mostrar/esconder campos baseado na role
+        roleSelect.addEventListener("change", () => {
+            const role = roleSelect.value;
+            resetVisibility();
+
+            if (role) {
+                camposLoginDiv.classList.remove("hidden");
+            }
+
+            if (role === "usuario") {
+                // Usuário usa Email e Senha digitada
+                labelEmail.classList.remove("hidden");
+                emailInput.classList.remove("hidden");
+                emailInput.focus();
+
+            } else if (role === "adm") {
+                // ADM usa Email, Senha digitada e Código Secreto
+                labelEmail.classList.remove("hidden");
+                emailInput.classList.remove("hidden");
+                labelCodigoAdm.classList.remove("hidden");
+                codigoAdmInput.classList.remove("hidden");
+                emailInput.focus();
+
+            } else if (role === "painel") {
+                // Painel usa ID ou Email do Painel e Senha Padrão
+                labelIdPainel.classList.remove("hidden");
+                idPainelInput.classList.remove("hidden");
+                idPainelInput.focus();
+            }
+        });
+
+        // Função de Login Unificada
+        entrarBtn.addEventListener("click", async function () {
+            messageDiv.textContent = "";
+            const role = roleSelect.value;
+            let email, password, idPainel, codigoAdm;
+
+            if (!role) {
+                messageDiv.textContent = "Selecione um tipo de acesso.";
+                return;
+            }
+
+            // Pega a senha digitada pelo usuário
+            password = passwordInput.value;
+
+            // 1. Coleta e Valida dados do formulário
+            if (role === "usuario") {
+                email = emailInput.value.trim();
+                if (!email || !password) {
+                    messageDiv.textContent = "Preencha email e senha.";
+                    return;
+                }
+            } else if (role === "adm") {
+                email = emailInput.value.trim();
+                codigoAdm = codigoAdmInput.value.trim();
+
+                if (!email || !password || !codigoAdm) {
+                    messageDiv.textContent = "Preencha email, senha e código secreto.";
+                    return;
+                }
+
+                if (codigoAdm !== CODIGO_MESTRE_ADM) {
+                    messageDiv.textContent = "Código de Acesso Secreto incorreto.";
+                    return;
+                }
+
+            } else if (role === "painel") {
+                idPainel = idPainelInput.value.trim();
+                // Pega a senha digitada pelo usuário
+                const enteredPassword = passwordInput.value.trim();
+
+                if (!idPainel) {
+                    messageDiv.textContent = "Preencha o ID ou Email do Painel.";
+                    return;
+                }
+
+                // Validação da Senha digitada para Painel 
+                if (!enteredPassword) {
+                    messageDiv.textContent = "Preencha a senha do Painel.";
+                    return;
+                }
+
+                // 🚨 CORREÇÃO: Força a Senha Padrão para evitar que usuários comuns loguem como Painel.
+                if (enteredPassword !== PAINEL_DEFAULT_PASSWORD) {
+                    messageDiv.textContent = "Senha do Painel incorreta.";
+                    return;
+                }
+                
+                // A senha para o Firebase é a senha que o usuário digitou.
+                password = enteredPassword;
+
+                // 2. Verifica se o usuário digitou o email completo ou apenas o ID.
+                if (idPainel.includes('@')) {
+                    // Se contiver '@', usa o valor como email direto.
+                    email = idPainel;
+
+                    // 🚨 CORREÇÃO: Extrair o ID puro do email para salvar no localStorage.
+                    // Ex: 'painel_tvpvwqpi@intelibus.com.br' -> 'tvpvwqpi'
+                    const match = email.match(/^painel_([a-zA-Z0-9_]+)@/);
+                    if (match && match[1]) {
+                        idPainel = match[1]; // Atualiza o idPainel com o ID puro extraído.
+                    } else {
+                        // Fallback: Se o email não estiver no formato esperado, usa a parte antes do @
+                        idPainel = idPainelInput.value.trim().split('@')[0];
+                    }
+
+                } else {
+                    // Se for só o ID (Ex: tvpvwqpi), mapeia para o formato de email do Firebase.
+                    // Adiciona uma sanitização básica para o ID antes de formar o email.
+                    const safePainelId = idPainel.replace(/[^a-zA-Z0-9_]/g, '').toLowerCase();
+                    email = `painel_${safePainelId}@intelibus.com.br`;
+                    // O idPainel já contém o valor puro sanitizado que será salvo.
+                    idPainel = safePainelId;
+                }
+            }
+
+            // 3. Execução do Login no Firebase (para todas as roles)
+            try {
+                // ⬇️⬇️⬇️ AQUI ESTÁ A ALTERAÇÃO PARA A COR AZUL ⬇️⬇️⬇️
+                messageDiv.style.color = 'blue';
+                messageDiv.textContent = "Verificando credenciais...";
+                entrarBtn.disabled = true;
+
+                // Autenticação usando o `email` (mapeado se for Painel) e a `password` (digitada).
+                const userCredential = await window.signInWithEmailAndPassword(window.auth, email, password);
+
+                messageDiv.style.color = 'green';
+                messageDiv.textContent = `Login de ${role} realizado com sucesso! Redirecionando...`;
+
+                let redirectURL = "home.html";
+
+                if (role === "adm") {
+                    redirectURL = "../admin/adm_home.html";
+                } else if (role === "painel") {
+                    // O idPainel agora contém o ID puro, garantindo que o localStorage está correto.
+                    // O redirecionamento aqui será feito corretamente.
+                    redirectURL = "../painel/painel.html";
+                }
+
+                // 4. SALVA A FUNÇÃO (ROLE) E ID DO PAINEL NO LOCALSTORAGE 
+                localStorage.setItem('userRole', role);
+                localStorage.setItem('painelId', idPainel || ''); // idPainel agora é o ID puro
+
+                setTimeout(() => {
+                    // 5. Redireciona
+                    window.location.href = redirectURL;
+                }, 1500);
+
+            } catch (error) {
+                console.error("Erro no login:", error.code, error.message);
+                entrarBtn.disabled = false;
+
+                let errorMessage = "Ocorreu um erro desconhecido no login.";
+                messageDiv.style.color = 'red';
+
+                localStorage.removeItem('userRole');
+
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                    case 'auth/wrong-password':
+                    case 'auth/invalid-credential':
+                        errorMessage = "Credenciais inválidas. Verifique os dados inseridos.";
+                        break;
+                    case 'auth/invalid-email':
+                        // Este erro indica que o email final formado é inválido.
+                        errorMessage = "Dados fornecidos em formato incorreto ou inválido.";
+                        break;
+                    default:
+                        errorMessage = "Erro no acesso. Tente novamente.";
+                }
+
+                messageDiv.textContent = errorMessage;
+            }
+        });
+    </script>
+</body>
+
+</html>

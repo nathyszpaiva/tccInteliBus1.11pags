@@ -1,0 +1,134 @@
+ /* FUNDO E ALINHAMENTO */
+        body {
+            margin: 0;
+            background: #1f1f1f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        /* PT.TABLET */
+        .tablet {
+            width: 90vw;
+            height: 85vh;
+            background: #fff;
+            border-radius: 30px;
+            display: flex;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(0,0,0,.4);
+        }
+
+        /* BARRA LATERAL */
+        .sidebar {
+            width: 180px;  
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px; 
+            border-right: 1px solid #bbb; 
+        }
+
+        /* ARCO DOS BOTÕES */
+        .btn-wrapper {
+            width: 150px;   
+            height: 150px;
+            background: #dcdcdc;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px; 
+        }
+
+        /* BOTÃO + ICON */
+        .btn-round {
+            width: 120px;       
+            height: 120px;      
+            border-radius: 50%; 
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-round img {
+            width: 60px;       
+            height: 60px;      
+            object-fit: contain; 
+        }
+
+        /* CORES */
+        .bluesky { background:#0259DD; }
+        .greenlemon { background:#B7CF4F; }
+        .yellow { background:#e0b50a; }
+        .coral { background:#ff4a4a; }
+
+        /* CONTEÚDO PRINCIPAL */
+        .main-content {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            padding-left: 20px; 
+        }
+
+        /* TOPO */
+        .top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 25px; 
+            font-family: "Open Sans", sans-serif;
+            font-optical-sizing: auto;
+        }
+
+        /* LINHA HORIZONTAL */
+        .divider {
+            width: 100%;
+            height: 2px;   
+            background: #dddddd;
+            margin-bottom: 30px;
+        }
+
+        /* INFORMAÇÕES */
+        .counter-info {
+            position: absolute;
+            font-size: 80px;
+            font-weight: bold;
+        }
+
+        /* NÚMERO VERDE */
+        .up {
+            top: 38%;
+            left: 32%;
+            color: #1fa34a;
+        }
+
+        /* NÚMERO VERMELHO */
+        .down {
+            bottom: 32%;
+            left: 32%;
+            color: #d62828;
+        }
+
+        /* NÚMERO PRETO */
+        .passenger-count {
+            font-size: 260px;
+            font-weight: bold;
+            color: #000;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* HORA E DATA */
+        #current-date {
+            font-size: 18px;
+            color: #333;
+            font-weight: 500;
+        }

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADM - Painéis</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+
+    <style>
+        /* ========================================================== */
+        /* 🎨 PALETA DE CORES */
+        /* ========================================================== */
+        :root {
+            --cor-rosa: #84AFFB;
+            --cor-azul: #B7CF4F;
+            --cor-laranja: #FF6648;
+            --cor-fundo-escuro: #333;
+            --cor-link-footer: #0c48a1;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            /* Fundo da página cinza claro, para destacar o card branco */
+            background: #f5f5f5; 
+        }
+
+        .content-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* 🏗️ FOOTER */
+        .footer {
+            background-color: #ffffff;
+            color: #000000;
+            padding: 40px 20px 20px;
+            font-family: Arial, sans-serif;
+            border-top: 1px solid #ddd;
+            margin-top: 40px;
+        }
+
+        .footer-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: auto;
+            gap: 40px;
+        }
+
+        .footer-section a:hover {
+            color: var(--cor-link-footer);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .close-btn-modal {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        /* ========================================================== */
+        /* 🚨 ESTILOS DO CARD (Modificado aqui) */
+        /* ========================================================== */
+        .painel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            max-width: 900px; /* Alinha o cabeçalho com os cards */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .painel-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            
+            background-color: #ffffff; /* GARANTE QUE É BRANCO */
+            border-radius: 8px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+
+            /* ALTERAÇÕES DE LARGURA E CENTRALIZAÇÃO */
+            max-width: 900px; /* Diminui a largura máxima do card */
+            width: 100%; /* Ocupa o espaço disponível até o max-width */
+            margin: 0 auto 15px; /* Centraliza horizontalmente e dá margem inferior */
+        }
+
+        .painel-details {
+            display: flex;
+            flex-direction: column;
+            gap: 5px; 
+            width: 100%;
+        }
+
+        .detalhe-linha {
+            display: flex !important; 
+            flex-direction: row !important;
+            align-items: baseline;
+            justify-content: flex-start;
+            width: 100%;
+        }
+
+        .detalhe-titulo {
+            font-weight: bold;
+            color: #000;
+            margin-right: 6px;
+            white-space: nowrap;
+            min-width: fit-content;
+        }
+
+        .detalhe-valor {
+            color: #333;
+            word-break: break-all;
+        }
+
+        .action-button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            margin-left: 10px;
+        }
+
+        .delete-button {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .delete-button:hover {
+            background-color: #c0392b;
+        }
+
+        .status-message {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            background-color: #e6f7ff;
+            color: #004085;
+            max-width: 900px; /* Alinha mensagens com os cards */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .status-message.error { background-color: #fdd; color: #c00; }
+        .status-message.success { background-color: #dfd; color: #0c0; }
+    </style>
+</head>
+
+<body>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, setLogLevel, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        setLogLevel('silent');
+        
+        const environmentAppId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const FIRESTORE_COLLECTION_PATH = `artifacts/${environmentAppId}/public/data/paineis`;
+        
+        const mainStatusMessage = document.createElement('p');
+        mainStatusMessage.id = 'mainStatusMessage';
+        mainStatusMessage.className = 'status-message';
+        mainStatusMessage.style.display = 'none';
+
+        const container = document.querySelector('.container');
+        if (container) container.prepend(mainStatusMessage);
+        else document.body.appendChild(mainStatusMessage);
+
+        const paineisList = document.getElementById('paineisList');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const cadastroModal = document.getElementById('cadastroModal');
+        const painelForm = document.getElementById('painelForm');
+        const registerMessage = document.getElementById('registerMessage');
+
+        window.appId = environmentAppId;
+
+        // Configuração Firebase
+        let firebaseConfig;
+        try {
+            const configString = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
+            firebaseConfig = JSON.parse(configString);
+            if (!firebaseConfig.projectId) throw new Error("ProjectId is missing.");
+        } catch (e) {
+            console.warn("Usando fallback de config.", e);
+            firebaseConfig = {
+                apiKey: "AIzaSyC1HmcMKzovu2LM7RmxBq5f6zsun76YZIs",
+                authDomain: "intelibustcc.firebaseapp.com",
+                projectId: "intelibustcc",
+                storageBucket: "intelibustcc.firebasestorage.app",
+                messagingSenderId: "212399344112",
+                appId: "1:212399344112:web:03dbb7d367f5542dc83535"
+            };
+        }
+
+        const app = initializeApp(firebaseConfig);
+        window.db = getFirestore(app);
+        window.auth = getAuth(app);
+
+        function showStatusMessage(message, type = 'error') {
+            mainStatusMessage.textContent = message;
+            mainStatusMessage.className = `status-message ${type}`;
+            mainStatusMessage.style.display = 'block';
+            setTimeout(() => { mainStatusMessage.style.display = 'none'; }, 3000);
+        }
+
+        const DEFAULT_PASSWORD = "intelibus123";
+
+        function generateSimpleId() {
+            const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let id = '';
+            for (let i = 0; i < 8; i++) { id += chars.charAt(Math.floor(Math.random() * chars.length)); }
+            return id;
+        }
+
+        function generatePainelEmail(painelId) {
+            const safePainelId = painelId.replace(/[^a-zA-Z0-9_]/g, '').toLowerCase();
+            return `painel_${safePainelId}@intelibus.com.br`;
+        }
+
+        // ==========================================================
+        // 🛠️ FUNÇÃO RENDERPAINEIS
+        // ==========================================================
+        function renderPaineis(paineis) {
+            paineisList.innerHTML = '';
+            if (paineis.length === 0) {
+                paineisList.innerHTML = '<p style="text-align: center; color: #555; margin-top: 20px;">Nenhum painel cadastrado.</p>';
+                return;
+            }
+
+            paineis.forEach(painel => {
+                const li = document.createElement('li');
+                li.className = 'painel-item';
+
+                const timestamp = painel.createdAt;
+                const dateCreated = timestamp && timestamp.seconds
+                    ? new Date(timestamp.seconds * 1000).toLocaleDateString('pt-BR')
+                    : 'N/A';
+                const painelEmail = painel.email || 'Email não registrado';
+
+                li.innerHTML = `
+                    <div class="painel-details">
+                        <div class="detalhe-linha">
+                            <span class="detalhe-titulo">ID:</span>
+                            <span class="detalhe-valor">${painel.painelId}</span>
+                        </div>
+
+                        <div class="detalhe-linha">
+                            <span class="detalhe-titulo">Linha Associada:</span>
+                            <span class="detalhe-valor">${painel.linhaId}</span>
+                        </div>
+
+                        <div class="detalhe-linha">
+                            <span class="detalhe-titulo">Email:</span>
+                            <span class="detalhe-valor">${painelEmail}</span>
+                        </div>
+
+                        <div class="detalhe-linha">
+                            <span class="detalhe-titulo">ID de Auth:</span>
+                            <span class="detalhe-valor">${painel.authUid || 'N/A'}</span>
+                        </div>
+
+                        <div class="detalhe-linha">
+                            <span class="detalhe-titulo">Cadastrado em:</span>
+                            <span class="detalhe-valor">${dateCreated}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="action-button delete-button"
+                            data-doc-id="${painel.id}"
+                            data-painel-id="${painel.painelId}">
+                            Excluir
+                        </button>
+                    </div>
+                `;
+                paineisList.appendChild(li);
+            });
+        }
+
+        function setupPaineisListener(userId) {
+            if (!window.db) return;
+            const paineisQuery = query(collection(window.db, FIRESTORE_COLLECTION_PATH));
+            loadingMessage.style.display = 'block';
+            
+            onSnapshot(paineisQuery, (snapshot) => {
+                loadingMessage.style.display = 'none';
+                errorMessage.textContent = '';
+                const paineis = [];
+                snapshot.forEach(doc => {
+                    paineis.push({ id: doc.id, ...doc.data() });
+                });
+                renderPaineis(paineis);
+            }, (error) => {
+                loadingMessage.style.display = 'none';
+                errorMessage.textContent = `ERRO: ${error.code}`;
+                errorMessage.style.color = 'red';
+            });
+        }
+
+        // Deletar
+        window.deletePainel = async function (docId, painelId) {
+            if (!confirm(`Excluir o Painel "${painelId}"?`)) return;
+            try {
+                await deleteDoc(doc(window.db, FIRESTORE_COLLECTION_PATH, docId));
+                showStatusMessage(`Painel excluído.`, 'success');
+            } catch (error) {
+                showStatusMessage(`Erro ao excluir: ${error.message}`, 'error');
+            }
+        }
+
+        // Modal
+        window.openModal = function () {
+            cadastroModal.style.display = 'flex';
+            registerMessage.textContent = '';
+            registerMessage.className = 'status-message';
+            painelForm.reset();
+            document.getElementById('painelIdDisplay').value = 'Gerado após preencher a linha';
+            document.getElementById('painelPassword').value = DEFAULT_PASSWORD;
+        }
+
+        window.closeModal = function () { cadastroModal.style.display = 'none'; }
+
+        // Form Submit
+        painelForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            registerMessage.textContent = 'Processando...';
+            
+            const linhaId = document.getElementById('linhaId').value.trim();
+            if (!linhaId) {
+                registerMessage.textContent = 'Linha obrigatória.';
+                return;
+            }
+
+            const newPainelId = `${linhaId.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}_${generateSimpleId()}`;
+            const painelEmail = generatePainelEmail(newPainelId);
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(window.auth, painelEmail, DEFAULT_PASSWORD);
+                await addDoc(collection(window.db, FIRESTORE_COLLECTION_PATH), {
+                    painelId: newPainelId,
+                    linhaId: linhaId,
+                    createdAt: new Date(),
+                    authUid: userCredential.user.uid,
+                    email: painelEmail
+                });
+                registerMessage.textContent = 'Sucesso!';
+                registerMessage.className = 'status-message success';
+                setTimeout(window.closeModal, 2000);
+            } catch (error) {
+                registerMessage.textContent = `Erro: ${error.message}`;
+                registerMessage.className = 'status-message error';
+            }
+        });
+
+        // Auth Listener
+        onAuthStateChanged(window.auth, async (user) => {
+            if (user) {
+                setupPaineisListener(user.uid);
+            } else {
+                try {
+                    if (initialAuthToken) await signInWithCustomToken(window.auth, initialAuthToken);
+                    else await signInAnonymously(window.auth);
+                } catch (e) { console.error(e); }
+            }
+        });
+
+        paineisList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-button')) {
+                window.deletePainel(e.target.dataset.docId, e.target.dataset.painelId);
+            }
+        });
+    </script>
+
+    <div class="content-wrapper">
+        <div class="top-banner">
+            <a href="adm_home.html"><img src="/frontend/assets/logo/logo.png" alt="Logo"></a>
+        </div>
+        <div class="linha-degrade"></div>
+        <div class="menu-icon" onclick="openMenu()">
+            <img src="/frontend/assets/icones/icone_menu.png" alt="Menu" class="menu-img">
+        </div>
+        <div id="sideMenu" class="side-menu">
+            <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+            <a href="adm_home.html">Página Inicial</a>
+            <a href="adm_paineis.html">Painéis</a>
+            <a href="adm_pontos.html">Pontos</a>
+            <a href="adm_linhas.html">Linhas</a>
+        </div>
+
+        <br><br><br>
+        <div class="container">
+            <div class="painel-header">
+                <h1>Painéis Cadastrados</h1>
+                <button onclick="openModal()">+ Cadastrar Painel</button>
+            </div>
+            <p id="loadingMessage" style="text-align: center;">Carregando painéis...</p>
+            <ul id="paineisList" class="painel-list" style="padding: 0; list-style: none;"></ul>
+            <p id="errorMessage" style="color: red; text-align: center;"></p>
+        </div>
+    </div>
+
+    <div id="cadastroModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn-modal" onclick="closeModal()">&times;</span>
+            <h2>Cadastrar Novo Painel</h2>
+            <div id="registerMessage" class="status-message error"></div>
+            <form id="painelForm">
+                <label for="linhaId">Número/Nome da Linha</label>
+                <input type="text" id="linhaId" name="linhaId" required>
+                <label>ID do Painel</label>
+                <input type="text" id="painelIdDisplay" readonly style="background-color: #eee;">
+                <label>Email (Auto)</label>
+                <input type="email" id="painelEmailDisplay" readonly style="background-color: #eee;" placeholder="Gerado automaticamente">
+                <label>Senha Padrão</label>
+                <input type="password" id="painelPassword" readonly style="background-color: #eee;">
+                <button type="submit">Finalizar Cadastro</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-container">
+
+            <div class="footer-section links">
+                <h3>Mapa do site</h3>
+                <ul>
+                    <li><a href="adm_home.html">Página Inicial</a></li>
+
+                    <li><a href="adm_paineis.html">Painéis</a></li>
+                    <li><a href="adm_pontos.html">Pontos</a></li>
+                    <li><a href="adm_linhas.html">Linhas</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section contact">
+                <h3 class="subtitulo">Contato</h3>
+                <p><i class="fas fa-envelope"><img src="/frontend/assets/icones/icone_email.png" alt="icon email"
+                            width="24px"></i>|
+                    intelibus@contato.com </p>
+                <p><i class="fas fa-phone"><img src="/frontend/assets/icones/icone_telefone.png" alt="icon telefone"
+                            width="24px"></i>|
+                    (19) 0000-0000</p>
+            </div>
+            <div class="footer-section links">
+                <div class="footer-section contact">
+                    <h3 class="subtitulo">Redes Sociais </h3>
+
+                    <p><i class="fas fa-envelope"><img src="/frontend/assets/icones/icone_instagram.png" alt=""
+                                width="24px"></i><a href="https://www.instagram.com/">instagram</a>
+                    </p>
+                    <p><i class="fas fa-phone"><img src="/frontend/assets/icones/icone_facebook.png" alt="icon telefone"
+                                width="24px"></i><a href="https://www.facebook.com/?locale=pt_BR">facebook</a></p>
+                </div>
+
+            </div>
+
+        </div>
+        <div class="footer-bottom">
+            <p>&copy;
+                2025 INTELIBUS - CNPJ 00 000 000/0000-00. | Todos os direitos reservados.</p>
+        </div>
+
+    </footer>
+
+    <script>
+        function openMenu() { document.getElementById("sideMenu").style.width = "250px"; }
+        function closeMenu() { document.getElementById("sideMenu").style.width = "0"; }
+    </script>
+     <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script> new window.VLibras.Widget('https://vlibras.gov.br/app'); </script>
+</body>
+</html>

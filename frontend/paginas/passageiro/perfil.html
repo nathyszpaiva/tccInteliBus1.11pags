@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+    <style>
+        /* ========================================================== */
+        /* 📌 ESTRUTURA PARA FIXAR O FOOTER NO FINAL (Sticky Footer) */
+        /* ========================================================== */
+        :root {
+            --cor-link-footer: #0c48a1;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            background: #f5f5f5;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            /* 🔥 Empurra o footer para o fim, ocupando o espaço restante */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 🖼️ DIV CONTAINER (Para centralizar, limitar a largura e dar o espaçamento) */
+        .container {
+            max-width: 1200px;
+            width: 90%;
+            margin: 0 auto;
+            padding-top: 20px;
+            /* Garante que o container ocupe o espaço vertical e empurre o conteúdo */
+            flex-grow: 1;
+            /* Adicionado padding-bottom para separar o último item do footer */
+            padding-bottom: 40px;
+        }
+
+        /* ========================================================== */
+        /* 🏗️ ESTILOS DO FOOTER (Padronizado) */
+        /* ========================================================== */
+        .footer {
+            background-color: #ffffff;
+            color: #000000;
+            padding: 40px 20px 20px;
+            font-family: Arial, sans-serif;
+            border-top: 1px solid #ddd;
+        }
+
+        .footer-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: auto;
+            gap: 40px;
+        }
+
+        .footer-section {
+            flex: 1 1 250px;
+        }
+
+        .footer-section h3,
+        .footer-section .subtitulo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #000000;
+            margin-bottom: 15px;
+        }
+
+        .footer-section.contact p,
+        .footer-section.social-media p {
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .footer-section img {
+            margin-right: 8px;
+            min-width: 20px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-section ul li a {
+            padding: 5px 0;
+            display: block;
+        }
+
+
+        .footer-section a {
+            text-decoration: none;
+            color: #555;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .footer-section a:hover {
+            color: var(--cor-link-footer);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 15px;
+            font-size: 14px;
+            color: #777;
+            border-top: 1px solid #eee;
+        }
+
+        /* ========================================================== */
+
+        /* Estilos adicionais para a lista de agendamentos */
+        .schedule-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .schedule-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .schedule-item strong {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .schedule-item .line-info {
+            font-size: 1.1em;
+            color: #007bff;
+            /* Azul primário para Linha e Horário */
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .schedule-item .detail {
+            font-size: 0.9em;
+            color: #555;
+            word-break: break-word;
+        }
+
+        .no-schedules {
+            text-align: center;
+            color: #888;
+            padding: 20px;
+            border: 1px dashed #ccc;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module">
+        // ==========================================================
+        // 🚀 PASSO 1: INICIALIZAÇÃO DO FIREBASE E AUTH
+        // ==========================================================
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import {
+            getAuth,
+            onAuthStateChanged,
+            signInWithCustomToken,
+            signInAnonymously,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            getDocs,
+            query,
+            where,
+            setLogLevel
+        } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+        // --- Configurações e Variáveis Globais ---
+        const HARDCODED_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyC1HmcMKzovu2LM7RmxBq5f6zsun76YZIs",
+            authDomain: "intelibustcc.firebaseapp.com",
+            projectId: "intelibustcc",
+            storageBucket: "intelibustcc.firebasestorage.app",
+            messagingSenderId: "212399344112",
+            appId: "1:212399344112:web:03dbb7d367f5542dc83535",
+            measurementId: "G-RWN8EMEW63"
+        };
+
+        let firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        if (Object.keys(firebaseConfig).length === 0) {
+            firebaseConfig = HARDCODED_FIREBASE_CONFIG;
+        }
+
+        let app, auth, db;
+        let isAuthReady = false;
+        let currentUserId = null;
+        let allPointsMap = new Map(); // Para traduzir IDs de pontos em nomes legíveis
+
+        // Constantes dos caminhos no Firestore
+        const AGENDAMENTOS_COLLECTION_PATH = `artifacts/${appId}/public/data/agendamentos`; // AQUI
+        const POINTS_COLLECTION_PATH = `artifacts/${appId}/public/data/pontos`;
+
+
+        // --- Seletores do DOM ---
+        const emailInput = document.getElementById('email');
+        const messageDiv = document.getElementById('statusMessage');
+        const schedulesListContainer = document.getElementById('schedulesList');
+
+        /** Exibe mensagens de status na UI */
+        function showMessage(text, type = 'info') {
+            if (!messageDiv) return;
+            messageDiv.textContent = text;
+            // Usando estilos inline simples para cores
+            const styles = {
+                error: {
+                    color: 'red',
+                    backgroundColor: '#f8d7da'
+                },
+                success: {
+                    color: 'green',
+                    backgroundColor: '#d4edda'
+                },
+                info: {
+                    color: '#004085',
+                    backgroundColor: '#cce5ff'
+                }
+            };
+            const currentStyle = styles[type] || styles['info'];
+            Object.assign(messageDiv.style, currentStyle);
+            messageDiv.style.padding = '10px';
+            messageDiv.style.borderRadius = '5px';
+            messageDiv.style.textAlign = 'center';
+            messageDiv.style.marginBottom = '15px';
+            messageDiv.style.fontWeight = 'bold';
+        }
+
+        // --- Inicialização e Autenticação ---
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            setLogLevel('silent'); // Ativa logs de depuração do Firestore
+
+            // Lógica de autenticação inicial
+            async function tryLogin() {
+                try {
+                    if (initialAuthToken) {
+                        await signInWithCustomToken(auth, initialAuthToken);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                } catch (e) {
+                    console.error("Erro no processo de autenticação:", e);
+                    showMessage("Erro de autenticação.", 'error');
+                }
+            }
+            tryLogin();
+
+            // Listener de estado de autenticação: Só carrega dados quando o usuário está pronto
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUserId = user.uid;
+                    isAuthReady = true;
+                    // Inicia o carregamento dos dados necessários (Pontos e Agendamentos)
+                    initializeDataLoading(user);
+                } else {
+                    currentUserId = null;
+                    isAuthReady = true;
+                    console.warn("Usuário deslogado. Dados de perfil não carregados.");
+                    showMessage('Faça login para ver seu perfil.', 'info');
+                    // Limpa a tela
+                    emailInput.value = 'N/A';
+                    schedulesListContainer.innerHTML = `<p class="no-schedules">Você não está logado para ver agendamentos.</p>`;
+                }
+            });
+
+        } catch (initError) {
+            console.error("Erro ao inicializar Firebase:", initError);
+            showMessage('Erro fatal ao inicializar o Firebase.', 'error');
+        }
+
+        /**
+         * 2.1 Carrega os dados de perfil (Email) e inicia o carregamento dos agendamentos.
+         */
+        async function initializeDataLoading(user) {
+            showMessage('Carregando perfil e agendamentos...', 'info');
+
+            // 1. Dados do Firebase Auth (Email)
+            emailInput.value = user.email || `ID de Usuário: ${user.uid}`;
+            emailInput.readOnly = true;
+            emailInput.disabled = true;
+
+            // 2. Carrega todos os pontos para tradução
+            await fetchAllPoints();
+
+            // 3. Carrega e exibe os agendamentos
+            await fetchAndRenderSchedules(user.uid);
+
+            showMessage('Perfil e agendamentos carregados.', 'success');
+        }
+
+
+        /** 2.2 Carrega todos os Pontos e preenche o mapa global. */
+        async function fetchAllPoints() {
+            const pointsCollectionRef = collection(db, POINTS_COLLECTION_PATH);
+            try {
+                const pointsSnapshot = await getDocs(pointsCollectionRef);
+                allPointsMap.clear();
+                pointsSnapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    allPointsMap.set(doc.id, {
+                        commonName: data.commonName || 'Ponto sem Nome',
+                        address: data.address || 'Endereço não informado'
+                    });
+                });
+                console.log(`Pontos carregados: ${allPointsMap.size}`);
+            } catch (e) {
+                console.error("ERRO ao buscar dados de Pontos (Tradução):", e);
+                // Não exibe erro, apenas registra no console.
+            }
+        }
+
+        /** 2.3 Busca os agendamentos do usuário logado e renderiza. */
+        async function fetchAndRenderSchedules(userId) {
+            schedulesListContainer.innerHTML = ''; // Limpa antes de carregar
+            const agendamentosRef = collection(db, AGENDAMENTOS_COLLECTION_PATH);
+
+            try {
+                // Filtra agendamentos onde o campo 'userId' é igual ao ID do usuário logado (CRÍTICO)
+                const q = query(agendamentosRef, where("userId", "==", userId));
+                const querySnapshot = await getDocs(q);
+
+                const agendamentos = [];
+                querySnapshot.forEach((doc) => {
+                    agendamentos.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                renderSchedules(agendamentos);
+
+            } catch (e) {
+                console.error("ERRO ao buscar agendamentos:", e);
+                schedulesListContainer.innerHTML = `<p class="no-schedules">Erro ao carregar agendamentos. Tente novamente.</p>`;
+            }
+        }
+
+        /** 2.4 Renderiza a lista de agendamentos no DOM. */
+        function renderSchedules(agendamentos) {
+            if (agendamentos.length === 0) {
+                schedulesListContainer.innerHTML = `<p class="no-schedules">Você ainda não tem agendamentos cadastrados.</p>`;
+                return;
+            }
+
+            const ul = document.createElement('ul');
+            ul.className = 'schedule-list';
+
+            agendamentos.forEach(agendamento => {
+                const li = document.createElement('li');
+                li.className = 'schedule-item';
+
+                // Função auxiliar para traduzir o ID
+                const translatePoint = (id) => {
+                    if (id === 'INDEFINIDO') return 'INDEFINIDO';
+                    const data = allPointsMap.get(id);
+                    return data ? (data.commonName === 'Ponto sem Nome' ? data.address : data.commonName) : 'Ponto Desconhecido';
+                };
+
+                const embarqueNome = translatePoint(agendamento.embarqueId);
+                const desembarqueNome = translatePoint(agendamento.desembarqueId);
+
+                // Data formatada (Lida com o objeto Timestamp: {seconds: 123456} que é salvo pelo agendamento.html)
+                const date = agendamento.timestamp && agendamento.timestamp.seconds ?
+                    new Date(agendamento.timestamp.seconds * 1000).toLocaleDateString('pt-BR') :
+                    'Data Desconhecida';
+
+                // Estrutura do item
+                li.innerHTML = `
+					<div class="line-info">Linha: ${agendamento.lineNumber || 'N/A'} - Horário: ${agendamento.horario || 'N/A'}</div>
+					<div class="detail"><strong>Embarque:</strong> ${embarqueNome}</div>
+					<div class="detail"><strong>Desembarque:</strong> ${desembarqueNome}</div>
+					<div class="detail"><strong>Agendado em:</strong> ${date}</div>
+				`;
+                ul.appendChild(li);
+            });
+
+            schedulesListContainer.appendChild(ul);
+        }
+
+
+        // ==========================================================
+        // 🚀 PASSO 3: EVENT LISTENERS
+        // ==========================================================
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // Evento para o botão SAIR
+            document.getElementById('logoutButton').addEventListener('click', async () => {
+                try {
+                    await signOut(auth);
+                    showMessage('Logout realizado com sucesso. Redirecionando para o login...', 'success');
+
+                    // --- MUDANÇA AQUI: REDIRECIONAMENTO PARA A TELA DE LOGIN ---
+                    setTimeout(() => {
+                        window.location.href = 'login.html'; // Assume que a tela de login se chama login.html
+                    }, 500); // Dá 500ms para a mensagem de sucesso aparecer antes de redirecionar
+                    // -----------------------------------------------------------
+
+                } catch (error) {
+                    console.error("Erro no logout:", error);
+                    showMessage('Erro ao fazer logout.', 'error');
+                }
+            });
+
+            // Garante que as funções de menu estão disponíveis
+            if (typeof window.openMenu === 'undefined') {
+                window.openMenu = function () {
+                    document.getElementById("sideMenu").style.width = "250px";
+                }
+            }
+            if (typeof window.closeMenu === 'undefined') {
+                window.closeMenu = function () {
+                    document.getElementById("sideMenu").style.width = "0";
+                }
+            }
+        });
+    </script>
+
+    <div class="top-banner">
+        <a href="home.html">
+            <img src="/frontend/assets/logo/logo.png" alt="Logo"></a>
+    </div>
+    <div class="linha-degrade"></div>
+
+    <div class="menu-icon" onclick="openMenu()">
+        <img src="/frontend/assets/icones/icone_menu.png" alt="Menu" class="menu-img">
+    </div>
+
+    <div id="sideMenu" class="side-menu">
+        <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+
+        <a href="home.html">Início</a>
+        <a href="agendamento.html">Agendar</a>
+        <a href="notificacoes.html">Notificações</a>
+        <a href="perfil.html">Perfil</a>
+        <a href="perfil.html">Histórico</a>
+        <a href="sobre.html">Sobre</a>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="container">
+            <div class="header-bar">
+                <h1>Seu Perfil</h1>
+            </div>
+
+            <div id="statusMessage"
+                style="padding: 10px; margin-bottom: 15px; text-align: center; border-radius: 5px; font-weight: bold;">
+                Carregando dados...
+            </div>
+
+            <div class="card profile-form">
+                <div class="input-group">
+                    <label for="email">E-mail de Acesso (ou ID de Usuário)</label>
+                    <input type="text" id="email" name="email" placeholder="seuemail@exemplo.com" readonly disabled>
+                </div>
+
+                <div class="recent-schedules" style="margin-top: 30px;">
+                    <h2 class="subtitulo"
+                        style="border-bottom: 2px solid #ccc; padding-bottom: 10px; margin-bottom: 20px;">
+                        Agendamentos Recentes</h2>
+
+                    <div id="schedulesList">
+                        <p class="no-schedules">Carregando seus agendamentos...</p>
+                    </div>
+                </div>
+
+                <button type="button" id="logoutButton" class="btn-secondary" style="margin-top: 30px;">
+                    Sair
+                </button>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="footer-container">
+
+            <div class="footer-section links">
+                <h3 class="subtitulo">Mapa do site</h3>
+                <ul>
+                    <li><a href="home.html">Inicial</a></li>
+                    <li><a href="agendamento.html">Agendamento</a></li>
+                    <li><a href="notificacoes.html">Notificações</a></li>
+                    <li><a href="perfil.html">Perfil</a></li>
+                    <li><a href="perfil.html">Histórico</a></li>
+                    <li><a href="sobre.html">Sobre</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section contact">
+                <h3 class="subtitulo">Contato</h3>
+                <p><img src="/frontend/assets/icones/icone_email.png" alt="Icone E-mail"> intelibus@gmail.com</p>
+                <p><img src="/frontend/assets/icones/icone_telefone.png" alt="icon telefone"> (19) 0000-0000</p>
+            </div>
+
+            <div class="footer-section social-media">
+                <h3 class="subtitulo">Redes Sociais </h3>
+                <p><img src="/frontend/assets/icones/icone_instagram.png" alt="Icone Instagram"><a
+                        href="https://www.instagram.com/"> Instagram</a></p>
+                <p><img src="/frontend/assets/icones/icone_facebook.png" alt="Icone Facebook"><a
+                        href="https://www.facebook.com/?locale=pt_BR"> Facebook</a></p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 INTELIBUS - CNPJ 00 000 000/0000-00. | Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Funções de menu mantidas fora do módulo para acesso global
+        function openMenu() {
+            document.getElementById("sideMenu").style.width = "250px";
+        }
+
+        function closeMenu() {
+            document.getElementById("sideMenu").style.width = "0";
+        }
+    </script>
+
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+    </script>
+    
+</body>
+
+</html>

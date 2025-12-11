@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre</title>
+
+    <link rel="stylesheet" href="/frontend/css/style.css">
+
+    <style>
+        /* ========================================================== */
+        /* 📌 ESTRUTURA PARA FIXAR O FOOTER NO FINAL (Sticky Footer) */
+        /* ========================================================== */
+        :root {
+            --cor-link-footer: #0c48a1;
+        }
+
+        html,
+        body {
+            height: 100%;
+            /* Garante 100% da altura da viewport */
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            /* Organiza o conteúdo verticalmente */
+            background: #f5f5f5;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            /* 🔥 Empurra o footer para o fim, ocupando o espaço restante */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 🖼️ CONTAINER CENTRALIZADOR (Usado para limitar a largura do conteúdo principal) */
+        .container-sobre {
+            max-width: 1200px;
+            width: 90%;
+            margin: 0 auto;
+            padding-top: 20px;
+            /* Adicionado padding-bottom para criar espaço antes do footer */
+            padding-bottom: 40px;
+            flex-grow: 1;
+        }
+
+        /* Ajustando os containers internos existentes para respeitarem o novo container */
+        .cards-gerais-container,
+        .container-sobre-video {
+            width: 100%;
+            /* Ocupa a largura total do container-sobre */
+        }
+
+        /* Espaçamento inicial para o menu fixo */
+        .spacing-for-menu {
+            height: 80px;
+            /* Ajuste conforme a altura do seu menu fixo */
+            width: 100%;
+        }
+
+
+        /* ========================================================== */
+        /* 🏗️ ESTILOS DO FOOTER (Padronizado) */
+        /* ========================================================== */
+        .footer {
+            background-color: #ffffff;
+            color: #000000;
+            padding: 40px 20px 20px;
+            font-family: Arial, sans-serif;
+            border-top: 1px solid #ddd;
+        }
+
+        .footer-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: auto;
+            gap: 40px;
+        }
+
+        .footer-section {
+            flex: 1 1 250px;
+        }
+
+        .footer-section h3,
+        .footer-section .subtitulo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #000000;
+            margin-bottom: 15px;
+        }
+
+        .footer-section.contact p,
+        .footer-section.social-media p {
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .footer-section img {
+            margin-right: 8px;
+            min-width: 20px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-section ul li a {
+            padding: 5px 0;
+            display: block;
+        }
+
+
+        .footer-section a {
+            text-decoration: none;
+            color: #555;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .footer-section a:hover {
+            color: var(--cor-link-footer);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 15px;
+            font-size: 14px;
+            color: #777;
+            border-top: 1px solid #eee;
+        }
+
+        /* ========================================================== */
+        /* 💡 ESTILOS ESPECÍFICOS DA PÁGINA SOBRE */
+        /* ========================================================== */
+
+        /* Ajuste para garantir que o container do vídeo não quebre o layout */
+        .video-placeholder {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .video-embed-sobre {
+            display: block;
+            max-width: 100%;
+        }
+
+        /* 🛠️ AJUSTE: Removendo o fundo branco e sombra do card do vídeo */
+        .sobre-card-video {
+            background-color: transparent !important;
+            /* Remove o fundo branco */
+            box-shadow: none !important;
+            /* Remove a sombra */
+            border: none !important;
+            padding: 0 !important;
+            /* Remove padding interno extra se houver */
+        }
+
+        .card-container-sobre {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .card-sobre {
+            flex: 1 1 300px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .icon-sobre {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module">
+
+        // Import the functions you need from the SDKs you need
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import {
+            getAnalytics
+        } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyC1HmcMKzovu2LM7RmxBq5f6zsun76YZIs",
+            authDomain: "intelibustcc.firebaseapp.com",
+            projectId: "intelibustcc",
+            storageBucket: "intelibustcc.firebasestorage.app",
+            messagingSenderId: "212399344112",
+            appId: "1:212399344112:web:03dbb7d367f5542dc83535",
+            measurementId: "G-RWN8EMEW63"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+    </script>
+
+    <script>
+        // Funcões para abrir e fechar o menu lateral
+        function openMenu() {
+            document.getElementById("sideMenu").style.width = "250px";
+        }
+
+        function closeMenu() {
+            document.getElementById("sideMenu").style.width = "0";
+        }
+    </script>
+
+
+    <div class="top-banner">
+        <a href="home.html">
+            <img src="/frontend/assets/logo/logo.png" alt="Logo"></a>
+    </div>
+    <div class="linha-degrade"></div>
+
+    <div class="menu-icon" onclick="openMenu()">
+        <img src="/frontend/assets/icones/icone_menu.png" alt="Menu" class="menu-img">
+    </div>
+
+    <div id="sideMenu" class="side-menu">
+        <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+
+        <a href="home.html">Início</a>
+        <a href="agendamento.html">Agendar</a>
+        <a href="notificacoes.html">Notificações</a>
+        <a href="perfil.html">Perfil</a>
+        <a href="perfil.html">Histórico</a>
+        <a href="sobre.html">Sobre</a>
+
+    </div>
+
+    <div class="content-wrapper">
+        <div class="spacing-for-menu"></div>
+
+        <div class="container-sobre">
+
+            <div class="cards-gerais-container" id="sobreCardsContainer">
+                <div class="card-container-sobre">
+
+                    <div class="card-sobre" id="missaoCard">
+                        <center><img src="/frontend/assets/icones/icone_juncao.png" alt="icon roteiro"
+                                class="icon-sobre">
+                        </center>
+                        <h3 class="titulo-card-sobre">Nossa Missão</h3>
+                        <p>Por meio do projeto Intelibus, buscamos integrar passageiros, motoristas e pontos de ônibus
+                            em
+                            um
+                            sistema moderno, acessível e eficiente, que forneça informações em tempo real, promova
+                            segurança,
+                            reduza o tempo de espera e incentive o uso consciente do transporte público.</p>
+                    </div>
+
+                    <div class="card-sobre" id="objetivosCard">
+                        <center><img src="/frontend/assets/icones/icone_objetivo.png" alt="icon suporte humanizado"
+                                class="icon-sobre"></center>
+                        <h3 class="titulo-card-sobre">Nossos Objetivos</h3>
+                        <p>Entre os objetivos específicos, destacamos: acompanhar rotas em tempo real, permitir
+                            pagamentos
+                            digitais, oferecer dados claros ao motorista, integrar pontos de embarque e desembarque, e
+                            ampliar
+                            futuramente o sistema para regiões de menor acesso.</p>
+                    </div>
+
+                    <div class="card-sobre" id="compromissoCard">
+                        <center><img src="/frontend/assets/icones/icone_compromisso.png" alt="icon de segurança"
+                                class="icon-sobre"></center>
+                        <h3 class="titulo-card-sobre">Nosso Compromisso</h3>
+                        <p>A partir de análises, testes, prototipagem e planejamento detalhado, buscamos construir uma
+                            solução
+                            que não apenas atenda aos requisitos técnicos, mas que também contribua para a modernização
+                            do
+                            transporte público.</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="container-sobre-video" id="sobreVideoContainer">
+                <div class="sobre-card-video">
+                    <h2 class="titulo-video">Pitch Intelibus</h2>
+
+                    <div class="video-placeholder">
+                        <iframe class="video-embed-sobre" width="100%" height="400"
+                            src="https://www.youtube.com/embed/gEObKY3sGSQ" title="Pitch Intelibus" frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+
+                    <p class="texto-video-abaixo">
+                        <strong> Problema e Solução Proposta:</strong> A mobilidade urbana enfrenta desafios como
+                        superlotação,
+                        atrasos e falta de informações em tempo real. Para resolver esses problemas, criamos o
+                        InteliBus,
+                        um
+                        ponto de ônibus inteligente que utiliza IoT para conectar passageiros, ônibus e pontos,
+                        oferecendo
+                        informações atualizadas e recursos de acessibilidade.
+                        <br><br><strong> Diferenciais e Objetivos do Projeto: </strong> O InteliBus se destaca pela
+                        integração
+                        tecnológica que melhora a experiência do usuário e facilita a gestão do transporte, permitindo
+                        até o
+                        monitoramento de rotas e lotação pelos motoristas. O grupo busca parcerias e investimentos para
+                        implementar um projeto piloto e iniciar a instalação de pontos de ônibus inteligentes nas
+                        grandes
+                        cidades.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="footer-container">
+
+            <div class="footer-section links">
+                <h3 class="subtitulo">Mapa do site</h3>
+                <ul>
+                    <li><a href="home.html">Inicial</a></li>
+                    <li><a href="agendamento.html">Agendamento</a></li>
+                    <li><a href="notificacoes.html">Notificações</a></li>
+                    <li><a href="perfil.html">Perfil</a></li>
+                    <li><a href="perfil.html">Histórico</a></li>
+                    <li><a href="sobre.html">Sobre</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section contact">
+                <h3 class="subtitulo">Contato</h3>
+                <p><img src="/frontend/assets/icones/icone_email.png" alt="Icone E-mail"> intelibus@gmail.com</p>
+                <p><img src="/frontend/assets/icones/icone_telefone.png" alt="Icone Telefone"> (19) 0000-0000</p>
+            </div>
+
+            <div class="footer-section social-media">
+                <h3 class="subtitulo">Redes Sociais </h3>
+                <p><img src="/frontend/assets/icones/icone_instagram.png" alt="Icone Instagram"><a
+                        href="https://www.instagram.com/"> Instagram</a></p>
+                <p><img src="/frontend/assets/icones/icone_facebook.png" alt="Icone Facebook"><a
+                        href="https://www.facebook.com/?locale=pt_BR"> Facebook</a></p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 INTELIBUS - CNPJ 00 000 000/0000-00. | Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+    </script>
+
+</body>
+
+</html>
+
+</body>
+
+</html>

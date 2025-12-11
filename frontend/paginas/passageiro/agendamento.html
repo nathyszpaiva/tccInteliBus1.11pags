@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamentos</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+    <style>
+        /* ========================================================== */
+        /* 📌 ESTRUTURA PARA FIXAR O FOOTER NO FINAL (Sticky Footer) */
+        /* ========================================================== */
+        :root {
+            /* Adicionado para os links do footer */
+            --cor-link-footer: #0c48a1;
+        }
+
+        html,
+        body {
+            height: 100%;
+            /* Garante 100% da altura da viewport */
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            /* Organiza o conteúdo verticalmente */
+            background: #f5f5f5;
+            /* Cor de fundo leve, se for o padrão */
+        }
+
+        .content-wrapper {
+            flex: 1;
+            /* 🔥 Empurra o footer para o fim, ocupando o espaço restante */
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 20px;
+        }
+
+        /* 🖼️ DIV CONTAINER (Para centralizar e limitar a largura do conteúdo principal) */
+        .container {
+            max-width: 1200px;
+            width: 90%;
+            margin: 0 auto;
+            padding-top: 20px;
+        }
+
+        /* ========================================================== */
+        /* 🏗️ ESTILOS DO FOOTER (Padronizado com o login/cadastro) */
+        /* ========================================================== */
+        .footer {
+            background-color: #ffffff;
+            color: #000000;
+            padding: 40px 20px 20px;
+            font-family: Arial, sans-serif;
+            border-top: 1px solid #ddd;
+        }
+
+        .footer-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: auto;
+            gap: 40px;
+        }
+
+        .footer-section {
+            flex: 1 1 250px;
+            /* Ajustado para 3 colunas */
+        }
+
+        .footer-section h3,
+        .footer-section .subtitulo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #000000;
+            margin-bottom: 15px;
+        }
+
+        .footer-section.contact p,
+        .footer-section.social-media p {
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .footer-section img {
+            margin-right: 8px;
+            min-width: 20px;
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Estilo dos links do rodapé (Mapa do Site) */
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-section ul li a {
+            padding: 5px 0;
+            display: block;
+        }
+
+
+        .footer-section a {
+            text-decoration: none;
+            color: #555;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .footer-section a:hover {
+            color: var(--cor-link-footer);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 15px;
+            font-size: 14px;
+            color: #777;
+            border-top: 1px solid #eee;
+        }
+
+        /* Estilos adicionais para a mensagem de status (mantidos) */
+        .status-message-box {
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .status-message-box.info {
+            background-color: #e3f2fd;
+            color: #1e88e5;
+        }
+
+        .status-message-box.error {
+            background-color: #ffebee;
+            color: #e53935;
+        }
+
+        .status-message-box.success {
+            background-color: #e8f5e9;
+            color: #43a047;
+        }
+
+        .card select:disabled {
+            background-color: #f0f0f0;
+            cursor: not-allowed;
+        }
+
+        .card button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module">
+        // ==========================================================
+        // 🚀 PASSO 1: INICIALIZAÇÃO DO FIREBASE E AUTH
+        // ==========================================================
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            getDocs,
+            setLogLevel,
+            query,
+            where,
+            addDoc // Importação crucial para salvar o agendamento
+        } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+        // --- Variáveis de Configuração Global ---
+        const HARDCODED_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyC1HmcMKzovu2LM7RmxBq5f6zsun76YZIs",
+            authDomain: "intelibustcc.firebaseapp.com",
+            projectId: "intelibustcc",
+            storageBucket: "intelibustcc.firebasestorage.app",
+            messagingSenderId: "212399344112",
+            appId: "1:212399344112:web:03dbb7d367f5542dc83535",
+            measurementId: "G-RWN8EMEW63"
+        };
+
+        let firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        if (Object.keys(firebaseConfig).length === 0) {
+            firebaseConfig = HARDCODED_FIREBASE_CONFIG;
+        }
+
+        let auth, db;
+        let userId = null;
+        const AGENDAMENTOS_COLLECTION_PATH = `artifacts/${appId}/public/data/agendamentos`; // AQUI
+        const POINTS_COLLECTION_PATH = `artifacts/${appId}/public/data/pontos`;
+        const LINES_COLLECTION_PATH = `artifacts/${appId}/public/data/linhas`;
+
+        // Estruturas globais para armazenar dados (Mapas para busca rápida)
+        let allPointsMap = new Map(); // pointId -> { commonName, address }
+        let allLinesData = []; // Array flat: { lineId, lineNumber, pointId, schedule }
+
+        // --- Seletores do DOM ---
+        const dataAgendamentoInput = document.getElementById('dataAgendamento'); // NOVO ELEMENTO
+        const pontoEmbarqueSelect = document.getElementById('pontoEmbarque');
+        const linhaEmbarqueSelect = document.getElementById('linhaEmbarque');
+        const horarioEmbarqueSelect = document.getElementById('horarioEmbarque');
+        const pontoDesembarqueSelect = document.getElementById('pontoDesembarque');
+        const agendarBtn = document.getElementById('agendarBtn');
+        const statusMessageEl = document.getElementById('statusMessage');
+
+
+        /** Exibe mensagens de status na UI */
+        function showMessage(text, type = 'info') {
+            if (!statusMessageEl) return;
+            statusMessageEl.textContent = text;
+            statusMessageEl.className = `status-message-box ${type}`;
+        }
+
+        // --- Inicialização e Autenticação ---
+        try {
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            setLogLevel('silent');
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    userId = user.uid;
+                    // Certifica-se de que o carregamento dos dados só começa após a autenticação
+                    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                        initializeDataLoading();
+                    } else {
+                        document.addEventListener('DOMContentLoaded', initializeDataLoading);
+                    }
+                } else {
+                    // Se não estiver logado, tenta o login
+                    tryLogin();
+                }
+            });
+
+            async function tryLogin() {
+                try {
+                    if (initialAuthToken) {
+                        await signInWithCustomToken(auth, initialAuthToken);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                } catch (e) {
+                    console.error("Erro no processo de autenticação:", e);
+                    showMessage("Erro de autenticação, o app pode não ter acesso aos dados.", 'error');
+                }
+            }
+            tryLogin(); // Tenta autenticar imediatamente
+
+        } catch (initError) {
+            console.error("Erro ao inicializar Firebase:", initError);
+            showMessage("Erro ao iniciar a conexão com o Firebase.", 'error');
+        }
+
+
+        // ==========================================================
+        // 💾 PASSO 2: FUNÇÕES DE CARREGAMENTO DE DADOS (Firestore)
+        // ==========================================================
+
+        /** Carrega todos os Pontos e preenche o mapa global. */
+        async function fetchAllPoints() {
+            showMessage('Buscando Pontos de Parada...', 'info');
+            const pointsCollectionRef = collection(db, POINTS_COLLECTION_PATH);
+            try {
+                const pointsSnapshot = await getDocs(pointsCollectionRef);
+                allPointsMap.clear();
+                pointsSnapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    allPointsMap.set(doc.id, {
+                        commonName: data.commonName || 'Ponto sem Nome',
+                        address: data.address || 'Endereço não informado'
+                    });
+                });
+                showMessage(`${allPointsMap.size} Pontos de Parada carregados.`, 'success');
+                populateStartPointSelect();
+            } catch (e) {
+                console.error("ERRO ao buscar dados de Pontos:", e);
+                showMessage('Erro ao carregar Pontos. Verifique as regras de segurança do Firestore.', 'error');
+            }
+        }
+
+        /** Carrega todos os dados de linhas e suas paradas
+         * e popula a variável global allLinesData para cruzamento.
+         */
+        async function fetchAllLineData() {
+            showMessage('Buscando dados de Linhas e Horários...', 'info');
+            const linesCollectionRef = collection(db, LINES_COLLECTION_PATH);
+            try {
+                const linesSnapshot = await getDocs(linesCollectionRef);
+
+                const linePromises = linesSnapshot.docs.map(async (lineDoc) => {
+                    const lineId = lineDoc.id;
+                    const lineData = lineDoc.data();
+                    const stopsColRef = collection(db, LINES_COLLECTION_PATH, lineId, 'paradas');
+
+                    // Busca one-time (getDocs) para a subcoleção de paradas
+                    const stopsSnapshot = await getDocs(stopsColRef);
+
+                    // Retorna um array de objetos de parada para esta linha
+                    return stopsSnapshot.docs.map(stopDoc => ({
+                        lineId: lineId,
+                        lineNumber: lineData.number || lineId,
+                        pointId: stopDoc.data().pointId,
+                        schedule: stopDoc.data().schedule ? stopDoc.data().schedule.split(',').map(s => s.trim()) : [], // Horários como array
+                    }));
+                });
+
+                const resultsArrays = await Promise.all(linePromises);
+                allLinesData = resultsArrays.flat().filter(item => item.pointId); // Filtra itens sem pointId
+                showMessage(`Dados de ${allLinesData.length} paradas de Linha carregados.`, 'success');
+            } catch (e) {
+                console.error("ERRO ao buscar dados de Linhas/Paradas:", e);
+                showMessage('Erro ao carregar dados das Linhas. O agendamento pode estar incompleto.', 'error');
+                allLinesData = [];
+            }
+        }
+
+        // ==========================================================
+        // 🔄 PASSO 3: LÓGICA DO FORMULÁRIO (Event Listeners)
+        // ==========================================================
+
+        /** Inicializa listeners e carregamento de dados */
+        async function initializeDataLoading() {
+            await Promise.all([
+                fetchAllPoints(),
+                fetchAllLineData()
+            ]);
+
+            // Definição da data mínima para hoje
+            const today = new Date().toISOString().split('T')[0];
+            dataAgendamentoInput.min = today;
+            dataAgendamentoInput.value = today; // Define a data inicial como hoje
+
+            // Adiciona listeners aos selects
+            dataAgendamentoInput.addEventListener('change', checkFormValidity); // NOVO LISTENER
+            pontoEmbarqueSelect.addEventListener('change', updateLines);
+            linhaEmbarqueSelect.addEventListener('change', updateSchedulesAndDestinations);
+            horarioEmbarqueSelect.addEventListener('change', checkFormValidity);
+            pontoDesembarqueSelect.addEventListener('change', checkFormValidity);
+            agendarBtn.addEventListener('click', handleAgendamento);
+
+            // Garante que o estado inicial é desabilitado
+            linhaEmbarqueSelect.disabled = true;
+            horarioEmbarqueSelect.disabled = true;
+            pontoDesembarqueSelect.disabled = true;
+            agendarBtn.disabled = true;
+            // O input da data não precisa ser desabilitado, pois já é preenchido com a data atual.
+            checkFormValidity(); // Checa validade inicial
+        }
+
+
+        /** 3.1 Preenche o select de Ponto de Embarque com todos os pontos. */
+        function populateStartPointSelect() {
+            pontoEmbarqueSelect.innerHTML = '<option value="">Selecione um ponto de embarque</option>';
+            allPointsMap.forEach((data, id) => {
+                const option = document.createElement('option');
+                option.value = id;
+                // Exibe o nome usual ou o endereço como fallback
+                option.textContent = data.commonName === 'Ponto sem Nome' ? data.address : data.commonName;
+                pontoEmbarqueSelect.appendChild(option);
+            });
+        }
+
+        /** 3.2 Atualiza as linhas disponíveis com base no ponto de embarque. */
+        function updateLines() {
+            const selectedPointId = pontoEmbarqueSelect.value;
+            // Reseta todos os selects dependentes
+            linhaEmbarqueSelect.innerHTML = '<option value="">Escolha uma linha</option>';
+            horarioEmbarqueSelect.innerHTML = '<option value="">Escolha o horário</option>';
+            pontoDesembarqueSelect.innerHTML = '<option value="">Escolha o ponto de desembarque</option>';
+
+            linhaEmbarqueSelect.disabled = true;
+            horarioEmbarqueSelect.disabled = true;
+            pontoDesembarqueSelect.disabled = true;
+            agendarBtn.disabled = true;
+
+            if (!selectedPointId) return;
+
+            // Filtra todas as associações de parada que pertencem ao ponto selecionado
+            const availableLines = allLinesData
+                .filter(item => item.pointId === selectedPointId)
+                .reduce((acc, item) => {
+                    // Usa lineId como chave, para garantir linhas únicas
+                    if (!acc[item.lineId]) {
+                        acc[item.lineId] = {
+                            lineId: item.lineId,
+                            lineNumber: item.lineNumber
+                        };
+                    }
+                    return acc;
+                }, {});
+
+            if (Object.keys(availableLines).length > 0) {
+                Object.values(availableLines).forEach(line => {
+                    const option = document.createElement('option');
+                    option.value = line.lineId; // Usamos o ID da linha para referência
+                    option.textContent = line.lineNumber; // Exibimos o número da linha
+                    linhaEmbarqueSelect.appendChild(option);
+                });
+                linhaEmbarqueSelect.disabled = false;
+            } else {
+                showMessage('Nenhuma linha passa neste ponto. Tente outro.', 'info');
+            }
+        }
+
+        /** 3.3 Atualiza horários e pontos de desembarque com base na linha. */
+        function updateSchedulesAndDestinations() {
+            const selectedPointId = pontoEmbarqueSelect.value;
+            const selectedLineId = linhaEmbarqueSelect.value;
+
+            // Reseta selects dependentes
+            horarioEmbarqueSelect.innerHTML = '<option value="">Escolha o horário</option>';
+            pontoDesembarqueSelect.innerHTML = '';
+
+            horarioEmbarqueSelect.disabled = true;
+            pontoDesembarqueSelect.disabled = true;
+            agendarBtn.disabled = true;
+
+            if (!selectedLineId) return;
+
+            // Adiciona a opção padrão
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Escolha o ponto de desembarque';
+            pontoDesembarqueSelect.appendChild(defaultOption);
+
+            // Adiciona a opção de Desembarque Indefinido (novo requisito)
+            const undefinedOption = document.createElement('option');
+            undefinedOption.value = 'INDEFINIDO';
+            undefinedOption.textContent = 'Ponto de Desembarque Indefinido';
+            pontoDesembarqueSelect.appendChild(undefinedOption);
+
+            // Encontra a parada específica (Ponto + Linha) para extrair os horários
+            const lineStopMatch = allLinesData.find(item =>
+                item.pointId === selectedPointId && item.lineId === selectedLineId
+            );
+
+            // 1. Preenche Horários
+            if (lineStopMatch && lineStopMatch.schedule.length > 0) {
+                lineStopMatch.schedule.sort();
+                lineStopMatch.schedule.forEach(horario => {
+                    const option = document.createElement('option');
+                    option.value = horario;
+                    option.textContent = horario;
+                    horarioEmbarqueSelect.appendChild(option);
+                });
+                horarioEmbarqueSelect.disabled = false;
+            } else {
+                showMessage('Não há horários cadastrados para esta linha neste ponto.', 'info');
+            }
+
+            // 2. Preenche Pontos de Desembarque (Todos os pontos atendidos pela linha, exceto o de Embarque)
+            // Encontra todos os IDs de pontos atendidos por ESTA linha
+            const allStopsForLine = allLinesData
+                .filter(item => item.lineId === selectedLineId && item.pointId !== selectedPointId)
+                .map(item => item.pointId)
+                .reduce((unique, item) => unique.includes(item) ? unique : [...unique, item], []);
+
+            if (allStopsForLine.length > 0) {
+                allStopsForLine.forEach(pointId => {
+                    const data = allPointsMap.get(pointId);
+                    if (data) {
+                        const option = document.createElement('option');
+                        option.value = pointId;
+                        option.textContent = data.commonName === 'Ponto sem Nome' ? data.address : data.commonName;
+                        pontoDesembarqueSelect.appendChild(option);
+                    }
+                });
+                pontoDesembarqueSelect.disabled = false;
+            } else if (lineStopMatch && lineStopMatch.schedule.length > 0) {
+                // Se só tem a opção INDEFINIDO, mas a linha existe, o desembarque é habilitado (só com a opção Indefinido)
+                pontoDesembarqueSelect.disabled = false;
+            }
+
+            checkFormValidity();
+        }
+
+        /** 3.4 Verifica se todos os campos obrigatórios estão preenchidos para habilitar o botão. */
+        function checkFormValidity() {
+            const isValid = dataAgendamentoInput.value !== '' && // VERIFICAÇÃO DA DATA
+                pontoEmbarqueSelect.value !== '' &&
+                linhaEmbarqueSelect.value !== '' &&
+                horarioEmbarqueSelect.value !== '' &&
+                pontoDesembarqueSelect.value !== '';
+
+            agendarBtn.disabled = !isValid;
+        }
+
+        // ==========================================================
+        // 💾 PASSO 4: FUNÇÃO CRÍTICA DE AGENDAMENTO (SALVANDO DADOS)
+        // ==========================================================
+
+        /** 4.1 Função de Agendamento, incluindo o userId e a data. */
+        async function handleAgendamento() {
+            if (!userId) {
+                showMessage("Você precisa estar logado para fazer um agendamento.", 'error');
+                return;
+            }
+
+            const data = dataAgendamentoInput.value; // NOVO: Captura a data no formato YYYY-MM-DD
+            const embarqueId = pontoEmbarqueSelect.value;
+            const linhaId = linhaEmbarqueSelect.value;
+            const horario = horarioEmbarqueSelect.value;
+            const desembarqueId = pontoDesembarqueSelect.value;
+            const lineNumber = linhaEmbarqueSelect.options[linhaEmbarqueSelect.selectedIndex].textContent;
+
+            if (!data || !embarqueId || !linhaId || !horario || !desembarqueId) { // NOVO: Valida a data
+                showMessage("Por favor, preencha todos os campos.", 'error');
+                return;
+            }
+
+            // Combina Data e Horário em um objeto Date para obter o timestamp correto
+            // O horário está em "HH:MM", a data em "YYYY-MM-DD"
+            const dateTimeString = `${data}T${horario}:00`; // Ex: "2025-12-08T22:30:00"
+            const scheduleDate = new Date(dateTimeString);
+
+            // Verifica se a data é válida
+            if (isNaN(scheduleDate.getTime())) {
+                showMessage("Data ou Horário inválido.", 'error');
+                return;
+            }
+
+            const newSchedule = {
+                // *** ESTE CAMPO É CRÍTICO para a busca no Perfil ***
+                userId: userId,
+                embarqueId: embarqueId,
+                desembarqueId: desembarqueId,
+                lineId: linhaId,
+                lineNumber: lineNumber,
+                horario: horario, // Mantém o horário string (HH:MM)
+                data: data, // NOVO: Mantém a data string (YYYY-MM-DD)
+                // Salva o timestamp completo no formato compatível com o Timestamp do Firestore
+                timestamp: {
+                    seconds: Math.floor(scheduleDate.getTime() / 1000)
+                }
+            };
+
+            try {
+                agendarBtn.disabled = true;
+                showMessage("Agendando sua viagem...", 'info');
+
+                const agendamentosRef = collection(db, AGENDAMENTOS_COLLECTION_PATH);
+                const docRef = await addDoc(agendamentosRef, newSchedule);
+
+                showMessage(`Agendamento realizado com sucesso para ${data} às ${horario}! ID: ${docRef.id}`, 'success');
+
+                // Limpar o formulário (volta ao estado inicial)
+                dataAgendamentoInput.value = new Date().toISOString().split('T')[0]; // Volta para hoje
+                pontoEmbarqueSelect.value = "";
+                updateLines();
+
+            } catch (e) {
+                console.error("Erro ao salvar agendamento:", e);
+                showMessage("Erro ao salvar agendamento. Verifique sua conexão e regras do Firestore.", 'error');
+            } finally {
+                agendarBtn.disabled = false;
+            }
+        }
+
+        // Funções de menu mantidas para o HTML
+        document.addEventListener('DOMContentLoaded', () => {
+            // Garante que as funções de menu estão disponíveis
+            if (typeof window.openMenu === 'undefined') {
+                window.openMenu = function () {
+                    document.getElementById("sideMenu").style.width = "250px";
+                }
+            }
+            if (typeof window.closeMenu === 'undefined') {
+                window.closeMenu = function () {
+                    document.getElementById("sideMenu").style.width = "0";
+                }
+            }
+        });
+    </script>
+
+    <div class="top-banner">
+        <a href="home.html">
+            <img src="/frontend/assets/logo/logo.png" alt="Logo"></a>
+    </div>
+    <div class="linha-degrade"></div>
+
+    <div class="menu-icon" onclick="openMenu()">
+        <img src="/frontend/assets/icones/icone_menu.png" alt="Menu" class="menu-img">
+    </div>
+
+    <div id="sideMenu" class="side-menu">
+        <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+
+        <a href="home.html">Início</a>
+        <a href="agendamento.html">Agendar</a>
+        <a href="notificacoes.html">Notificações</a>
+        <a href="perfil.html">Perfil</a>
+        <a href="perfil.html">Histórico</a>
+        <a href="sobre.html">Sobre</a>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="container">
+            <div class="header-bar">
+                <h1>Novo Agendamento</h1>
+            </div>
+
+            <div id="statusMessage" class="status-message-box info">
+                Carregando dados...
+            </div>
+
+            <div class="card booking-form">
+                <div class="input-group">
+                    <label for="dataAgendamento">Data da Viagem</label>
+                    <input type="date" id="dataAgendamento" required>
+                </div>
+                <div class="input-group">
+                    <label for="pontoEmbarque">Ponto de Embarque</label>
+                    <select id="pontoEmbarque">
+                        <option value="">Carregando pontos...</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="linhaEmbarque">Linha Disponível</label>
+                    <select id="linhaEmbarque" disabled>
+                        <option value="">Selecione um ponto primeiro</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="horarioEmbarque">Horário de Partida</label>
+                    <select id="horarioEmbarque" disabled>
+                        <option value="">Selecione uma linha primeiro</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="pontoDesembarque">Ponto de Desembarque</label>
+                    <select id="pontoDesembarque" disabled>
+                        <option value="">Selecione uma linha primeiro</option>
+                    </select>
+                </div>
+
+                <button type="button" id="agendarBtn" class="btn-primary" disabled>
+                    Agendar Viagem
+                </button>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="footer-container">
+
+            <div class="footer-section links">
+                <h3 class="subtitulo">Mapa do site</h3>
+                <ul>
+                    <li><a href="home.html">Inicial</a></li>
+                    <li><a href="agendamento.html">Agendamento</a></li>
+                    <li><a href="notificacoes.html">Notificações</a></li>
+                    <li><a href="perfil.html">Perfil</a></li>
+                    <li><a href="perfil.html">Histórico</a></li>
+                    <li><a href="sobre.html">Sobre</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section contact">
+                <h3 class="subtitulo">Contato</h3>
+                <p><img src="/frontend/assets/icones/icone_email.png" alt="Icone E-mail"> intelibus@gmail.com</p>
+                <p><img src="/frontend/assets/icones/icone_telefone.png" alt="Icone Telefone"> (19) 0000-0000</p>
+            </div>
+
+            <div class="footer-section social-media">
+                <h3 class="subtitulo">Redes Sociais </h3>
+                <p><img src="/frontend/assets/icones/icone_instagram.png" alt="Icone Instagram"><a
+                        href="https://www.instagram.com/"> Instagram</a></p>
+                <p><img src="/frontend/assets/icones/icone_facebook.png" alt="Icone Facebook"><a
+                        href="https://www.facebook.com/?locale=pt_BR"> Facebook</a></p>
+            </div>
+
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 INTELIBUS - CNPJ 00 000 000/0000-00. | Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+    </script>
+
+    <script>
+        // Funções de menu mantidas fora do módulo para acesso global
+        function openMenu() {
+            document.getElementById("sideMenu").style.width = "250px";
+        }
+
+        function closeMenu() {
+            document.getElementById("sideMenu").style.width = "0";
+        }
+    </script>
+</body>
+
+</html>

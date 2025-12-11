@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>| TELA DO MOTORISTA</title>
+
+    <script>
+        // Verifica se o usuário tem o papel de 'painel' no LocalStorage
+        const userRole = localStorage.getItem('userRole');
+
+        // Se o papel não for 'painel', redireciona imediatamente
+        if (userRole !== 'painel') {
+            console.error("Acesso negado! Você precisa ser um Painel/Motorista para acessar esta tela.");
+            // Usando caminho absoluto para evitar o SyntaxError e garantir que a URL seja válida.
+            window.location.replace("/frontend/paginas/passageiro/login.html");
+        }
+
+        // Obter o ID do Painel (chave essencial para identificar a origem)
+        window.painelId = localStorage.getItem('painelId') || 'PAINEL_DESCONHECIDO';
+    </script>
+
+    <link rel="stylesheet" href="/frontend/css/style_painel.css">
+    <link rel="icon" type="image/png" href="/frontend/assets/icones/painel/icon_janela.png">
+
+    <!-- Estilo Básico para o Modal de Feedback (Substitui o alert()) -->
+    <style>
+        .feedback-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            /* Inicia escondido */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .feedback-content {
+            background-color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module">
+        // Importa as funções necessárias, incluindo as de Autenticação
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+        // ==========================================================
+        // 🚀 CORREÇÃO CRÍTICA: CONFIGURAÇÃO HARDCODED COMO FALLBACK
+        // ==========================================================
+
+        const HARDCODED_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyC1HmcMKzovu2LM7RmxBq5f6zsun76YZIs",
+            authDomain: "intelibustcc.firebaseapp.com",
+            projectId: "intelibustcc",
+            storageBucket: "intelibustcc.firebasestorage.app",
+            messagingSenderId: "212399344112",
+            appId: "1:212399344112:web:03dbb7d367f5542dc83535",
+            measurementId: "G-RWN8EMEW63"
+        };
+
+        // 1. Tenta carregar a configuração do ambiente
+        let firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // 2. Se a configuração do ambiente estiver vazia, usa a hardcoded
+        if (Object.keys(firebaseConfig).length === 0) {
+            firebaseConfig = HARDCODED_FIREBASE_CONFIG;
+            console.warn("DEBUG: Configuração do Firebase não encontrada no ambiente. Usando configuração de fallback hardcoded.");
+        }
+
+        // 3. Obtém o appId
+        const appId = typeof __app_id !== 'undefined' ? __app_id : firebaseConfig.appId;
+
+
+        // Variáveis globais do Firebase
+        window.db = null;
+        window.auth = null;
+        window.COLLECTION_NOTIFICACOES_PATH = null;
+        window.isAuthReady = false;
+
+        // Inicializa Firebase
+        if (Object.keys(firebaseConfig).length > 0) {
+            const app = initializeApp(firebaseConfig);
+            window.db = getFirestore(app);
+            window.auth = getAuth(app);
+            window.COLLECTION_NOTIFICACOES_PATH = `artifacts/${appId}/public/data/notificacoes`;
+            setLogLevel('silent'); // Para ver logs detalhados
+
+            // Lógica de Autenticação
+            async function authenticate() {
+                try {
+                    if (initialAuthToken) {
+                        await signInWithCustomToken(window.auth, initialAuthToken);
+                        console.log("Firebase Auth: Logado via Custom Token.");
+                    } else {
+                        // Faz login anônimo se o token não estiver disponível
+                        await signInAnonymously(window.auth);
+                        console.log("Firebase Auth: Logado Anonimamente (fallback).");
+                    }
+                } catch (error) {
+                    console.error("Erro no processo de autenticação:", error);
+                } finally {
+                    window.isAuthReady = true;
+                    console.log("Autenticação Firebase Pronta.");
+                }
+            }
+
+            authenticate();
+        } else {
+            console.error("Configuração do Firebase não disponível. Operações de DB serão ignoradas.");
+            window.isAuthReady = true;
+        }
+
+    </script>
+
+    <!-- Modal de Feedback (Substitui o alert()) -->
+    <div id="feedbackModal" class="feedback-modal">
+        <div class="feedback-content" id="feedbackMessage"></div>
+    </div>
+
+    <div class="tablet">
+        <div class="sidebar">
+            <div class="btn-wrapper">
+                <button class="btn-round bluesky" onclick="window.sendNotification('Mudança de Rota')">
+                    <img src="/frontend/assets/icones/painel/icon_rota.png" alt="IconButtomBlueSky">
+                </button>
+            </div>
+            <div class="btn-wrapper">
+                <button class="btn-round greenlemon" onclick="window.sendNotification('Atraso')">
+                    <img src="/frontend/assets/icones/painel/icon_atraso.png" alt="IconButtomGreenLemon">
+                </button>
+            </div>
+            <div class="btn-wrapper">
+                <button class="btn-round yellow" onclick="window.sendNotification('Superlotação')">
+                    <img src="/frontend/assets/icones/painel/icon_lotacao.png" alt="IconButtomYellow">
+                </button>
+            </div>
+            <div class="btn-wrapper">
+                <button class="btn-round coral" onclick="window.sendNotification('Emergência')">
+                    <img src="/frontend/assets/icones/painel/icon_emergencia.png" alt="IconButtomCoral">
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="top-bar">
+                <span id="current-date"></span>
+                <span id="timer"></span>
+                <span>Campinas, SP | BR</span>
+            </div>
+
+            <div class="divider"></div>
+            <div class="counter-info up">▲ 2</div>
+            <div class="passenger-count" id="count">40</div>
+            <div class="counter-info down">▼ 9</div>
+        </div>
+    </div>
+
+    <script>
+        // Função para mostrar o modal de feedback
+        function showFeedback(message, color = '#333') {
+            const modal = document.getElementById('feedbackModal');
+            const messageDiv = document.getElementById('feedbackMessage');
+            messageDiv.textContent = message;
+            messageDiv.style.color = color;
+            modal.style.display = 'flex';
+
+            // Esconde o modal após 3 segundos
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 3000);
+        }
+
+        // Simula a busca da Linha (Em um app real, buscaríamos em 'paineis' ou 'linhas')
+        function getLinhaInfo(painelId) {
+            // PLaceholder para simular que o Painel "sabe" qual linha ele opera
+            return {
+                id: '123', // ID da Linha (Exemplo)
+                nome: 'Centro - Taquaral'
+            };
+        }
+
+        // Lógica para Salvar Notificação no Firestore
+        window.sendNotification = async function (type) {
+
+            // 1. VERIFICA SE O DB ESTÁ PRONTO E CONECTADO
+            if (!window.isAuthReady) {
+                // A autenticação está sendo processada, aguarde
+                showFeedback('⏳ Aguardando autenticação...', 'gray');
+                return;
+            }
+            if (!window.db) {
+                // O DB não foi inicializado porque a configuração estava ausente
+                showFeedback('❌ Sistema de DB não pronto. Configuração ausente.', 'red');
+                return;
+            }
+
+
+            const db = window.db;
+            const COLLECTION_NOTIFICACOES_PATH = window.COLLECTION_NOTIFICACOES_PATH;
+            const painelId = window.painelId;
+            const linhaInfo = getLinhaInfo(painelId);
+
+            const now = new Date();
+            const dataHora = now.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'medium', timeZone: 'America/Sao_Paulo' });
+
+            // Constrói a mensagem personalizada
+            let titulo, descricao;
+
+            switch (type) {
+                case 'Mudança de Rota':
+                    titulo = `⚠️ Mudança de Rota na Linha ${linhaInfo.id}`;
+                    descricao = `Houve uma alteração na rota no dia ${dataHora}.`;
+                    break;
+                case 'Superlotação':
+                    titulo = `🚨 Superlotação - Linha ${linhaInfo.id}`;
+                    descricao = `Superlotação registrada em ${dataHora}.`;
+                    break;
+                case 'Emergência':
+                    titulo = `🚑 Emergência na Linha ${linhaInfo.id}`;
+                    descricao = `Emergência reportada em ${dataHora}. Acompanhe as atualizações.`;
+                    break;
+                case 'Atraso':
+                    titulo = `⏰ Atraso - Linha ${linhaInfo.id}`;
+                    descricao = `O ônibus está com atraso inesperado. Informações atualizadas em ${dataHora}.`;
+                    break;
+                default:
+                    titulo = `Notificação Padrão - Linha ${linhaInfo.id}`;
+                    descricao = `Evento genérico na Linha ${linhaInfo.nome} em ${dataHora}.`;
+            }
+
+            try {
+                // O import é feito aqui novamente para garantir o acesso ao módulo
+                const { collection, addDoc } = await import("https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js");
+
+                await addDoc(collection(db, COLLECTION_NOTIFICACOES_PATH), {
+                    painelId: painelId,
+                    linhaId: linhaInfo.id,
+                    tipo: type,
+                    titulo: titulo,
+                    descricao: descricao,
+                    timestamp: now.getTime(), // Salva em milissegundos para ordenação
+                    dataHora: dataHora,
+                    lida: false
+                });
+
+                showFeedback(`✅ ${type} enviado!`, 'green');
+
+            } catch (e) {
+                console.error("Erro ao enviar notificação:", e);
+                // O erro de permissão (se ocorrer) será capturado aqui
+                showFeedback(`❌ Erro ao enviar: ${e.message.includes('permission') ? 'Permissão Negada (Auth)' : e.message}`, 'red');
+            }
+        }
+
+        // HORA E DATA EM TEMPO REAL (mantidas)
+        function updateRealTime() {
+            const now = new Date();
+            const options = {
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+                timeZone: 'America/Sao_Paulo'
+            };
+            const timeString = new Intl.DateTimeFormat('pt-BR', options).format(now);
+            document.getElementById('timer').innerText = timeString;
+        }
+
+        // exibição da data (mantida)
+        function updateDate() {
+            const now = new Date();
+            const options = {
+                weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
+                timeZone: 'America/Sao_Paulo'
+            };
+            const dateString = new Intl.DateTimeFormat('pt-BR', options).format(now);
+            document.getElementById('current-date').innerText = dateString;
+        }
+        // atualiza a hora e data a cada segundo
+        setInterval(updateRealTime, 1000);
+        setInterval(updateDate, 1000);
+
+        // não esperar 1 segundo
+        updateRealTime();
+        updateDate();
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificações</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+
+    <style>
+        /* ========================================================== */
+        /* 📌 ESTRUTURA PARA FIXAR O FOOTER NO FINAL (Sticky Footer) */
+        /* ========================================================== */
+        :root {
+            --cor-link-footer: #0c48a1;
+        }
+
+        html,
+        body {
+            height: 100%;
+            /* Garante 100% da altura da viewport */
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            /* Organiza o conteúdo verticalmente */
+            background: #f5f5f5;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            /* 🔥 Empurra o footer para o fim, ocupando o espaço restante */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 🖼️ DIV CONTAINER (Para centralizar e limitar a largura do conteúdo principal) */
+        .container {
+            max-width: 1200px;
+            width: 90%;
+            margin: 0 auto;
+            padding-top: 20px;
+            /* CORREÇÃO: Adicionado padding-bottom para criar espaço antes do footer */
+            padding-bottom: 40px;
+            flex-grow: 1;
+        }
+
+        /* ========================================================== */
+        /* 🏗️ ESTILOS DO FOOTER (Padronizado) */
+        /* ========================================================== */
+        .footer {
+            background-color: #ffffff;
+            color: #000000;
+            padding: 40px 20px 20px;
+            font-family: Arial, sans-serif;
+            border-top: 1px solid #ddd;
+        }
+
+        .footer-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: auto;
+            gap: 40px;
+        }
+
+        .footer-section {
+            flex: 1 1 250px;
+        }
+
+        .footer-section h3,
+        .footer-section .subtitulo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #000000;
+            margin-bottom: 15px;
+        }
+
+        .footer-section.contact p,
+        .footer-section.social-media p {
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .footer-section img {
+            margin-right: 8px;
+            min-width: 20px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-section ul li a {
+            padding: 5px 0;
+            display: block;
+        }
+
+
+        .footer-section a {
+            text-decoration: none;
+            color: #555;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .footer-section a:hover {
+            color: var(--cor-link-footer);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 15px;
+            font-size: 14px;
+            color: #777;
+            border-top: 1px solid #eee;
+        }
+
+        /* ========================================================== */
+        /* 🔔 ESTILOS ESPECÍFICOS DE NOTIFICAÇÕES (MANTIDOS) */
+        /* ========================================================== */
+        .notification-item {
+            border-left: 5px solid transparent;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #ffffff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+        }
+
+        .bus-icon {
+            margin-right: 15px;
+            width: 30px;
+        }
+
+        .bus-icon img {
+            width: 100%;
+        }
+
+        .notification-content h3 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 1.1em;
+        }
+
+        .notification-content p {
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+
+        .notification-content small {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+            font-size: 0.8em;
+        }
+
+        .blue-border {
+            border-left-color: #007bff;
+        }
+
+        .green-border {
+            border-left-color: #28a745;
+        }
+
+        .yellow-border {
+            border-left-color: #ffc107;
+        }
+
+        .red-border {
+            border-left-color: #dc3545;
+        }
+
+        .blue-text {
+            color: #007bff;
+        }
+
+        .green-text {
+            color: #28a745;
+        }
+
+        .yellow-text {
+            color: #ffc107;
+        }
+
+        .red-text {
+            color: #dc3545;
+        }
+
+        #loading-or-error-message {
+            text-align: center;
+            padding: 20px;
+            font-size: 1.1em;
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-banner">
+        <a href="home.html">
+            <img src="/frontend/assets/logo/logo.png" alt="Logo"></a>
+    </div>
+    <div class="linha-degrade"></div>
+
+    <div class="menu-icon" onclick="openMenu()">
+        <img src="/frontend/assets/icones/icone_menu.png" alt="Menu" class="menu-img">
+    </div>
+
+    <div id="sideMenu" class="side-menu">
+        <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+
+        <a href="home.html">Início</a>
+        <a href="agendamento.html">Agendar</a>
+        <a href="notificacoes.html">Notificações</a>
+        <a href="perfil.html">Perfil</a>
+        <a href="perfil.html">Histórico</a>
+        <a href="sobre.html">Sobre</a>
+
+    </div>
+
+    <div class="content-wrapper">
+        <br><br><br>
+        <div class="container">
+            <div class="header-bar">
+                <h1>Notificações</h1>
+            </div>
+
+            <div id="loading-or-error-message">
+                Conectando ao sistema de notificações...
+            </div>
+
+            <ul id="notificacoes-list" class="notification-list" style="display:none;">
+            </ul>
+
+
+            <div id="infoModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-button" id="closeModalBtn">&times;</span>
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+    <footer class="footer">
+        <div class="footer-container">
+
+            <div class="footer-section links">
+                <h3 class="subtitulo">Mapa do site</h3>
+                <ul>
+                    <li><a href="home.html">Inicial</a></li>
+                    <li><a href="agendamento.html">Agendamento</a></li>
+                    <li><a href="notificacoes.html">Notificações</a></li>
+                    <li><a href="perfil.html">Perfil</a></li>
+                    <li><a href="perfil.html">Histórico</a></li>
+                    <li><a href="sobre.html">Sobre</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section contact">
+                <h3 class="subtitulo">Contato</h3>
+                <p><img src="/frontend/assets/icones/icone_email.png" alt="Icone E-mail"> intelibus@gmail.com</p>
+                <p><img src="/frontend/assets/icones/icone_telefone.png" alt="Icone Telefone"> (19) 0000-0000</p>
+            </div>
+
+            <div class="footer-section social-media">
+                <h3 class="subtitulo">Redes Sociais </h3>
+                <p><img src="/frontend/assets/icones/icone_instagram.png" alt="Icone Instagram"><a
+                        href="https://www.instagram.com/"> Instagram</a></p>
+                <p><img src="/frontend/assets/icones/icone_facebook.png" alt="Icone Facebook"><a
+                        href="https://www.facebook.com/?locale=pt_BR"> Facebook</a></p>
+            </div>
+
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 INTELIBUS - CNPJ 00 000 000/0000-00. | Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+    </script>
+
+    <script type="module">
+        // Importa as funções necessárias, incluindo as de Autenticação e setLogLevel
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import {
+            getAuth,
+            signInAnonymously,
+            signInWithCustomToken
+        } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            query,
+            onSnapshot,
+            setLogLevel
+        } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+        // Váriaveis Globais do Ambiente
+        // Configuração Hardcoded para funcionar como Fallback
+        const HARDCODED_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyC1HmcMKzovu2LM7RmxBq5f6zsun76YZIs",
+            authDomain: "intelibustcc.firebaseapp.com",
+            projectId: "intelibustcc",
+            storageBucket: "intelibustcc.firebasestorage.app",
+            messagingSenderId: "212399344112",
+            appId: "1:212399344112:web:03dbb7d367f5542dc83535",
+            measurementId: "G-RWN8EMEW63"
+        };
+
+        let firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        if (Object.keys(firebaseConfig).length === 0) {
+            firebaseConfig = HARDCODED_FIREBASE_CONFIG;
+        }
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : firebaseConfig.appId;
+        const msgElement = document.getElementById('loading-or-error-message');
+        const listElement = document.getElementById('notificacoes-list');
+
+        // Inicializa Firebase
+        if (Object.keys(firebaseConfig).length > 0) {
+            try {
+                const app = initializeApp(firebaseConfig);
+                window.db = getFirestore(app);
+                window.auth = getAuth(app);
+                setLogLevel('silent'); // Ativa logs para ver a conexão no console
+                window.COLLECTION_NOTIFICACOES_PATH = `artifacts/${appId}/public/data/notificacoes`;
+
+                // Lógica de Autenticação (Necessária para ler dados públicos conforme a regra)
+                async function authenticate() {
+                    try {
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(window.auth, initialAuthToken);
+                            console.log("Notificação Auth: Logado via Custom Token.");
+                        } else {
+                            await signInAnonymously(window.auth);
+                            console.log("Notificação Auth: Logado Anonimamente (fallback).");
+                        }
+                    } catch (error) {
+                        console.error("Erro no processo de autenticação:", error);
+                        msgElement.textContent = "Erro de autenticação, tentando ler dados...";
+                    } finally {
+                        setupNotificacoesListener();
+                    }
+                }
+
+                authenticate();
+
+            } catch (initError) {
+                console.error("Erro ao inicializar Firebase:", initError);
+                msgElement.textContent = "Erro fatal ao inicializar o Firebase.";
+            }
+        } else {
+            console.error("Configuração do Firebase não disponível.");
+            msgElement.textContent = "Configuração do Firebase não disponível.";
+        }
+
+        // Função para ler e exibir notificações em tempo real
+        function setupNotificacoesListener() {
+            if (!window.db || !listElement) {
+                if (msgElement) msgElement.textContent = `Erro: Elemento da lista ou DB não encontrado.`;
+                return;
+            }
+
+            // Consulta: Pega todas as notificações, ordenadas pela mais recente (timestamp)
+            const q = query(
+                collection(window.db, window.COLLECTION_NOTIFICACOES_PATH),
+                // REMOVIDO: orderBy() para evitar erros de índice. A ordenação será feita no cliente.
+            );
+
+            console.log("Notificação: Iniciando escuta em tempo real no caminho:", window.COLLECTION_NOTIFICACOES_PATH);
+
+            // Listener em tempo real (onSnapshot)
+            onSnapshot(q, (snapshot) => {
+                listElement.innerHTML = ''; // Limpa a lista existente
+
+                const notifications = [];
+                snapshot.forEach((doc) => {
+                    // Guarda todos os documentos para ordenação
+                    notifications.push(doc.data());
+                });
+
+                // ORDENAÇÃO NO CLIENTE: Ordem decrescente por timestamp (mais novo primeiro)
+                notifications.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                if (notifications.length === 0) {
+                    listElement.style.display = 'none';
+                    msgElement.style.display = 'block';
+                    msgElement.innerHTML = `
+						Nenhuma notificação no momento.
+						<br><small style="color: #999;">Os alertas do painel aparecerão aqui em tempo real.</small>
+					`;
+                    return;
+                }
+
+                msgElement.style.display = 'none'; // Esconde a mensagem de carregamento
+                listElement.style.display = 'block'; // Mostra a lista
+
+                notifications.forEach((data) => {
+                    const li = document.createElement('li');
+
+                    let corClasse = '';
+
+                    // 1. EXTRAI O NÚMERO DA LINHA DO painelId
+                    let numeroLinha = '';
+                    if (data.painelId) {
+                        const match = data.painelId.match(/\d+/); // Encontra a sequência de dígitos
+                        numeroLinha = match ? match[0] : '';
+                    }
+
+                    // 2. DEFINE A COR E CONSTRÓI O TÍTULO
+                    let tituloBase = 'Alerta de evento';
+                    if (data.tipo) {
+                        if (data.tipo.includes('Atraso')) {
+                            corClasse = 'green-border';
+                            tituloBase = 'Atraso na Linha';
+                        } else if (data.tipo.includes('Superlotação')) {
+                            corClasse = 'yellow-border';
+
+                            tituloBase = 'Superlotação na Linha';
+                        } else if (data.tipo.includes('Emergência')) {
+                            corClasse = 'red-border';
+
+                            tituloBase = 'Emergência na Linha';
+                        } else if (data.tipo.includes('Rota')) {
+                            corClasse = 'blue-border';
+
+                            tituloBase = 'Mudança de Rota na Linha';
+                        }
+                    }
+
+                    // Prepara o texto do número da linha (com espaço)
+                    const linhaTexto = numeroLinha ? ` ${numeroLinha}` : '';
+
+                    // Constrói o título
+                    const tituloFinal = `${tituloBase}${linhaTexto}`;
+
+                    // Aplica classes de estilo
+                    li.classList.add('notification-item', corClasse);
+                    const corTexto = corClasse.replace('-border', '-text');
+
+                    // 3. CONSTRÓI O HTML DA NOTIFICAÇÃO
+                    li.innerHTML = `
+						<div class="bus-icon">
+							<img src="/frontend/assets/icones/icone_onibus.png" alt="Ícone de Ônibus">
+						</div>
+						<div class="notification-content">
+							<h3 class="${corTexto}">${tituloFinal}</h3>
+							<p>${data.descricao || 'Detalhes da notificação não disponíveis.'}</p>
+							<small>Publicado em: ${data.dataHora || 'Data/Hora não disponível'}</small>
+						</div>
+					`;
+                    listElement.appendChild(li);
+                });
+            }, (error) => {
+                console.error("Erro ao ouvir notificações:", error);
+                msgElement.style.display = 'block';
+                listElement.style.display = 'none';
+                msgElement.innerHTML = `<p style="color: #dc3545;">Erro ao carregar notificações: Verifique a conexão e as regras do Firebase.</p>`;
+            });
+        }
+    </script>
+    <script>
+        // Funções para abrir e fechar o menu lateral
+        function openMenu() {
+            document.getElementById("sideMenu").style.width = "250px";
+        }
+
+        function closeMenu() {
+            document.getElementById("sideMenu").style.width = "0";
+        }
+
+        // Lógica do Modal de Informações (MANTIDA)
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('infoModal');
+            const openBtn = document.getElementById('openModalBtn');
+            const closeBtn = document.getElementById('closeModalBtn');
+
+            // Quando o usuário clica no (x), fecha o modal
+            if (closeBtn) {
+                closeBtn.onclick = function () {
+                    modal.style.display = 'none';
+                }
+            }
+
+            // Quando o usuário clica fora do modal, fecha o modal
+            window.onclick = function (event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

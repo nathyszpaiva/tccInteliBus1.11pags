@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADM - Linhas</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+    <style>
+        /* ========================================================== */
+        /* 📌 ESTRUTURA PARA FIXAR O FOOTER NO FINAL (Copiado de ADM_HOME) */
+        /* ========================================================== */
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            background: #f5f5f5;
+            /* FIX: Força a barra de rolagem vertical para evitar o "salto" */
+            overflow-y: scroll;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            /* 🔥 empurra o footer para o fim */
+        }
+
+        /* Estilos adicionais e correções de layout mantidas */
+
+        .container {
+            /* Largura para ocupar o espaço restante após a margem de 10% */
+            width: 80%;
+            /* Alinha todo o conteúdo à esquerda com 10% de margem */
+            margin-left: 10%;
+            padding: 20px 0;
+        }
+
+        .card {
+            width: 100%;
+            max-width: none;
+        }
+
+        /* Garante que o título e o botão fiquem lado a lado */
+        .painel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        /* 🚀 Fundo cinza bem clarinho (#FAFAFA) */
+        .line-card {
+            list-style: none;
+            background-color: #FAFAFA;
+            /* Cinza extra-claro */
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Garantindo que o formulário de Adição também use o cinza clarinho */
+        #newLineFormContainer {
+            background-color: #FAFAFA;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+
+        #linesList {
+            padding-left: 0;
+            list-style-type: none;
+        }
+
+        /* Estilo para a linha do header (Linha: X | Botões) */
+        .line-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        /* ------------------ ESTILOS DE BOTÕES DE AÇÃO (UNIFORME) ------------------ */
+
+        /* 1. CLASSE BASE PEQUENA: Define o FORMATO (tamanho e borda) para TODOS os botões de ação pequena (Editar, Excluir, Salvar, Cancelar).
+        Usando !important para forçar a sobreposição do CSS global de style.css.
+        */
+        .btn-action-small {
+            padding: 8px 15px !important;
+            font-size: 14px !important;
+            height: auto !important;
+            /* Garante que a altura é definida pelo padding */
+            width: auto;
+            flex-shrink: 0;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            font-weight: 500;
+            flex-grow: 0 !important;
+        }
+
+        /* Botão PRIMÁRIO (Principal) - É o botão GRANDE na header (+ Adicionar Nova Linha) */
+        .btn-primary {
+            background-color: #0259DD;
+            /* Verde para Ação Principal (Adicionar) */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            padding: 10px 20px;
+            /* Tamanho maior para o botão principal */
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .btn-primary:hover {
+            background-color: #0c48a1;
+        }
+
+        /* 2. Cores e Margens para Botões Pequenos (Heredam o formato de .btn-action-small) */
+
+        /* Botão EXCLUIR (Vermelho) */
+        .delete-btn {
+            background-color: #FF6648;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .delete-btn:hover {
+            background-color: #fa320a;
+        }
+
+        /* Botão EDITAR (Azul) */
+        .edit-btn {
+            background-color: #007bff;
+            color: white;
+            margin-right: 10px;
+        }
+
+        .edit-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Botão SECUNDÁRIO (Cinza) - Usado para Cancelar e Adicionar Parada no form */
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        /* Botão REMOVER PARADA (Vermelho Escuro) - Deve usar .btn-action-small no HTML para herdar o tamanho */
+        .remove-stop-btn {
+            background-color: #dc3545;
+            color: white;
+            margin-top: 10px !important;
+            display: block;
+            float: right;
+            clear: both;
+        }
+
+        .remove-stop-btn:hover {
+            background-color: #c82333;
+        }
+
+        /* Bloco de garantia para botões dentro de form-actions (Salvar/Cancelar) - Garante que usem o formato pequeno */
+        .form-actions .btn-primary,
+        .form-actions .btn-secondary {
+            /* Os estilos abaixo são redundantes se .btn-action-small for aplicado, mas servem como garantia */
+            padding: 8px 15px !important;
+            font-size: 14px !important;
+            flex-grow: 0;
+            width: auto;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        /* ------------------ ESTILOS DE MENSAGENS DE STATUS (COPIADO DE ADM_PONTOS.TXT) ------------------ */
+
+        .status-message {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .status-message.error {
+            background-color: #fdd;
+            color: #c00;
+        }
+
+        .status-message.success {
+            background-color: #dfd;
+            color: #0c0;
+        }
+
+        /* ------------------ ESTILOS DE INPUTS E CONTAINERS ------------------ */
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        /* Novo Estilo para Horários (os "quadradinhos") */
+        .schedule-text {
+            display: none !important;
+        }
+
+        .schedule-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .schedule-item {
+            background-color: #ffffff;
+            color: #333;
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
+        }
+
+        /* ------------------ CORREÇÃO: Linha divisória mais visível ------------------ */
+        /* * Ajustado para linha SÓLIDA, Cinza Suave (#CCC) e com espaçamento
+        */
+        .stop-list li {
+            border-bottom: 1px solid #ccc;
+            /* Linha reta (solid) e cinza suave */
+            padding-bottom: 15px;
+            /* Aumenta o espaço ABAIXO da linha */
+            margin-bottom: 15px;
+            /* Aumenta o espaço ACIMA da linha */
+            padding-top: 5px;
+            /* Adiciona um pequeno espaço acima do conteúdo da parada */
+        }
+
+        /* Remove a linha da última parada para um acabamento limpo */
+        .stop-list li:last-child {
+            border-bottom: none;
+            margin-bottom: 5px;
+            padding-bottom: 0;
+        }
+    </style>
+
+    <script>
+        const userRole = localStorage.getItem('userRole');
+        if (userRole !== 'adm') {
+            console.error("Acesso negado! Você precisa ser um Administrador.");
+            window.location.href = "../passageiro/login.html";
+        }
+    </script>
+</head>
+
+<body>
+
+    <script type="module">
+        // ==========================================================
+        // 🚀 PASSO 1: INICIALIZAÇÃO DO FIREBASE E AUTH
+        // ==========================================================
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import {
+            getAuth,
+            onAuthStateChanged,
+            signInWithCustomToken,
+            signInAnonymously
+        } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            onSnapshot,
+            addDoc,
+            doc,
+            deleteDoc,
+            getDocs,
+            writeBatch,
+
+            updateDoc, // <--- ADICIONADO PARA O UPDATE
+            setLogLevel
+        } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+        // --- Variáveis de Configuração Global ---
+        const HARDCODED_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyC1HmcMKzovu2LM7RmxBq5f6zsun76YZIs",
+            authDomain: "intelibustcc.firebaseapp.com",
+            projectId: "intelibustcc",
+            storageBucket: "intelibustcc.firebasestorage.app",
+            messagingSenderId: "212399344112",
+            appId: "1:212399344112:web:03dbb7d367f5542dc83535",
+
+            measurementId: "G-RWN8EMEW63"
+        };
+        let firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ?
+            __initial_auth_token : null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        if (Object.keys(firebaseConfig).length === 0) {
+            firebaseConfig = HARDCODED_FIREBASE_CONFIG;
+        }
+
+        let auth, db;
+        let userId = null;
+        const LINES_COLLECTION_PATH = `artifacts/${appId}/public/data/linhas`;
+        // COLEÇÃO MONITORADA PARA O DROPDOWN
+        const POINTS_COLLECTION_PATH = `artifacts/${appId}/public/data/pontos`;
+        let allPoints = []; // Array para armazenar { id, name, address } de todos os pontos
+        let pointsInitialized = false;
+        // 🆕 FLAG PARA GARANTIR QUE OS PONTOS FORAM CARREGADOS INICIALMENTE
+
+        // --- Inicialização e Autenticação ---
+        try {
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            setLogLevel('silent');
+
+            if (initialAuthToken) {
+                signInWithCustomToken(auth, initialAuthToken).catch(e => {
+                    console.error("Erro ao autenticar com token customizado:", e);
+                    signInAnonymously(auth);
+                });
+            } else {
+                signInAnonymously(auth);
+            }
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    userId = user.uid;
+                    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+
+
+                        initializeAppLogic();
+                    } else {
+                        document.addEventListener('DOMContentLoaded', initializeAppLogic);
+                    }
+
+                } else {
+
+
+                    showMessage('Usuário deslogado. Redirecionando...', 'error');
+                    setTimeout(() => window.location.href = "../passageiro/login.html", 1000);
+                }
+
+            });
+        } catch (initError) {
+            console.error("Erro ao inicializar Firebase:", initError);
+        }
+
+
+        // ==========================================================
+        // 💾 PASSO 2: FUNÇÕES UTILS E LÓGICA DA TELA
+        // ==========================================================
+
+        const linesListEl = document.getElementById('linesList');
+        const statusMessageEl = document.getElementById('statusMessage');
+        const openAddLineFormBtn = document.getElementById('openAddLineFormBtn');
+        const newLineFormContainer = document.getElementById('newLineFormContainer');
+        const cancelAddLineBtn = document.getElementById('cancelAddLineBtn');
+        const addLineAndStopsForm = document.getElementById('addLineAndStopsForm');
+        const addStopFieldBtn = document.getElementById('addStopFieldBtn');
+        const stopsContainer = document.getElementById('stopsContainer');
+
+        /** Exibe mensagens de status na UI */
+        function showMessage(text, type = 'info') {
+            if (!statusMessageEl) return;
+            // Garantindo que as classes de estilo unificado (usadas em adm_pontos.txt) sejam aplicadas
+            statusMessageEl.className = `status-message ${type}`;
+            statusMessageEl.textContent = text;
+        }
+
+        // --- Funções para Carregamento de Pontos em Tempo Real ---
+
+        /** 🆕 Gera o HTML das opções de ponto (apenas Nome e Endereço visível) */
+        function getPointOptionsHtml() {
+            let optionsHtml = '<option value="" data-name="" data-address="">-- Selecione um Ponto --</option>';
+            if (allPoints.length > 0) {
+                allPoints.forEach(point => {
+                    // Monta o texto visível: Nome e Endereço
+                    const displayText = `${point.name} (${point.address || 'Endereço Indisponível'})`;
+                    // O VALUE é 
+                    optionsHtml += `<option value="${point.id}" data-name="${point.name}" data-address="${point.address}">${displayText}</option>`;
+                });
+            } else {
+                // CORREÇÃO: String literal em uma única linha para evitar erros de sintaxe.
+                optionsHtml = '<option value="" data-name="" disabled>Nenhum ponto cadastrado. Cadastre em ADM - Pontos.</option>';
+            }
+            return optionsHtml;
+        }
+
+        /** 🆕 Atualiza as opções em todos os selects de ponto abertos (chamado pelo onSnapshot) */
+        function updateAllStopSelects() {
+            const optionsHtml = getPointOptionsHtml();
+            // Atualiza selects no formulário principal de Adicionar
+            const newSelects = stopsContainer.querySelectorAll('[name^="selected_point_"]');
+            newSelects.forEach(selectEl => {
+                const currentValue = selectEl.value; // Mantém o valor selecionado, se houver
+                selectEl.innerHTML = optionsHtml;
+                selectEl.value = currentValue;
+            });
+            // Atualiza selects nos formulários de Edição abertos
+            document.querySelectorAll('.edit-stops-container').forEach(container => {
+                const selects = container.querySelectorAll('[name^="selected_point_"]');
+                selects.forEach(selectEl => {
+                    const currentValue = selectEl.value;
+
+                    selectEl.innerHTML = optionsHtml;
+                    selectEl.value = currentValue;
+                });
+            });
+        }
+
+        /** 🆕 Função para carregar todos os pontos de parada em tempo real */
+        function loadPointsRealTime() {
+            if (!userId) return;
+            showMessage('Monitorando pontos de parada em tempo real...', 'info');
+            const pointsQuery = collection(db, POINTS_COLLECTION_PATH);
+            onSnapshot(pointsQuery, (pointsSnapshot) => {
+                // Atualiza o array global de pontos
+                allPoints = pointsSnapshot.docs.map(doc => {
+                    const data = doc.data();
+                    return {
+
+
+                        id: doc.id,
+                        // Usa 'name' ou 'commonName' como nome principal
+                        name: data.name || data.commonName || data.endereco || `Ponto ${doc.id.substring(0, 5)}...`,
+
+                        address: data.address || data.endereco || 'Endereço não cadastrado' // Assume 'address' ou 'endereco'
+                    };
+                });
+
+                // 
+
+                // Ordena e atualiza a UI
+                allPoints.sort((a, b) => (a.name + a.address).localeCompare(b.name + b.address));
+
+
+                console.log(`Pontos carregados em tempo real: ${allPoints.length}`);
+                showMessage('Lista de pontos de parada atualizada.', 'info');
+                // Atualiza todas as dropdowns de ponto que 
+                // já existem na tela
+                updateAllStopSelects();
+                // 🚀 FIX: Chama loadLines APENAS depois que os pontos foram carregados pela primeira vez
+                if (!pointsInitialized) {
+                    pointsInitialized = true;
+                    loadLines(); // Inicia o carregamento das Linhas (que precisam dos Pontos)
+                }
+
+            }, (error) => {
+                console.error("Erro ao ouvir pontos de parada:", error);
+                showMessage('Erro ao carregar pontos de parada. Verifique a coleção e as regras de segurança.', 'error');
+                allPoints = [];
+            });
+        }
+
+        /** Inicializa listeners e carregamento de dados */
+        function initializeAppLogic() {
+            if (localStorage.getItem('userRole') !== 'adm') return;
+            // 1. Inicia o listener de Pontos (ele se encarregará de chamar loadLines na primeira vez)
+            loadPointsRealTime();
+            openAddLineFormBtn.addEventListener('click', toggleForm);
+            cancelAddLineBtn.addEventListener('click', toggleForm);
+            // O botão do form principal já está ligado a uma função que chama a versão nova
+            addStopFieldBtn.addEventListener('click', () => addStopFieldset(stopsContainer));
+            addLineAndStopsForm.addEventListener('submit', handleAddLineAndStops);
+            // Adiciona o primeiro conjunto de campos de parada por padrão
+            addStopFieldset(stopsContainer);
+            showMessage('Carregando linhas cadastradas...', 'info');
+        }
+
+        /** Alterna a visibilidade do formulário unificado */
+        function toggleForm() {
+            const isHidden = newLineFormContainer.style.display === 'none' ||
+                newLineFormContainer.style.display === '';
+            newLineFormContainer.style.display = isHidden ? 'block' : 'none';
+            openAddLineFormBtn.style.display = isHidden ? 'none' : 'block';
+            // Limpa e reinicia o formulário quando ele é ocultado
+            if (!isHidden) {
+                addLineAndStopsForm.reset();
+                stopsContainer.innerHTML = '';
+                addStopFieldset(stopsContainer);
+            }
+        }
+
+
+        // ==========================================================
+        // ✍️ PASSO 3: LÓGICA DO FORMULÁRIO UNIFICADO (LINHA + PONTOS/HORÁRIOS)
+        // ==========================================================
+        let stopFieldIndex = 0;
+        // Contador global para garantir IDs únicos
+
+        /** * Adiciona um novo conjunto de campos de Ponto/Horário ao formulário (usado em Add e Edit).
+        * @param {HTMLElement} container - O elemento pai onde o fieldset será adicionado.
+        * @param {string} pointId - ID do ponto selecionado (para edição).
+        * @param {string} schedule - Horários (separados por vírgula) (para edição).
+        * @param {string} stopDocId - ID do documento da subcoleção de paradas (somente para edição).
+        */
+        function addStopFieldset(container, pointId = '', schedule = '', stopDocId = '') {
+            const currentIndex = stopFieldIndex++;
+            const fieldset = document.createElement('fieldset');
+            fieldset.classList.add('stop-fieldset', 'card');
+            fieldset.style.padding = '15px';
+            fieldset.style.marginBottom = '15px';
+            // Adiciona data-id se estivermos em modo de edição e o stopDocId for fornecido
+            if (stopDocId) {
+                fieldset.dataset.stopDocId = stopDocId;
+            } else {
+                // Para novos campos adicionados no modo de edição, use um placeholder
+                fieldset.dataset.stopDocId = 'NEW';
+            }
+
+
+            const schedulePattern = '^(\\s*\\d{2}:\\d{2}\\s*)(?:,\\s*\\d{2}:\\d{2}\\s*)*$';
+            const optionsHtml = getPointOptionsHtml();
+            fieldset.innerHTML = `
+                <legend style="font-weight: bold;">Parada ${container.querySelectorAll('.stop-fieldset').length + 1}</legend>
+                ${stopDocId ?
+                    `<p style="font-size: 0.8em; color: #999;">Doc ID: ${stopDocId}</p>` : ''}
+                <input type="hidden" name="stop_doc_id_${currentIndex}" value="${stopDocId}" />
+                <div class="input-group">
+                    <label>Ponto de Parada:</label>
+                    <select name="selected_point_${currentIndex}" required>
+           
+                        ${optionsHtml}
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Horários (separados por 
+                    vírgula - Formato: HH:MM):</label>
+        
+                    <input type="text" name="schedule_${currentIndex}" placeholder="Ex: 07:00,12:00,18:30" pattern="${schedulePattern}" value="${schedule}" required>
+                </div>
+                <button type="button" class="btn-action-small remove-stop-btn">Remover Parada</button>
+      
+            `;
+            const selectEl = fieldset.querySelector(`[name="selected_point_${currentIndex}"]`);
+            selectEl.value = pointId;
+            // Define o valor selecionado
+
+            fieldset.querySelector('.remove-stop-btn').addEventListener('click', (e) => {
+                const targetFieldset = e.target.closest('.stop-fieldset');
+                const containerEl = targetFieldset.parentNode;
+
+                // Em Edição, marca 
+
+                // como "DELETAR" em vez de remover totalmente
+                if (containerEl.classList.contains('edit-stops-container') && targetFieldset.dataset.stopDocId !== 'NEW') {
+                    // Oculta e marca para exclusão no Firestore
+                    targetFieldset.style.display = 'none';
+
+
+                    targetFieldset.dataset.action = 'DELETE';
+
+                    targetFieldset.querySelector('select').removeAttribute('required'); // Remove required para passar na validação
+                    targetFieldset.querySelector('input[type="text"]').removeAttribute('required');
+
+
+                }
+
+                // Na adição de 
+                // nova linha, ou se for novo campo na edição, remove diretamente
+                else {
+
+
+                    containerEl.removeChild(targetFieldset);
+                }
+
+                // Em ambos os casos, atualiza os rótulos das paradas visíveis
+                updateStopFieldsetLabels(containerEl);
+            });
+            container.appendChild(fieldset);
+            updateStopFieldsetLabels(container);
+            return fieldset; // Retorna o fieldset para uso na renderLine
+        }
+
+        /** Atualiza os números das legendas após adição/remoção */
+        function updateStopFieldsetLabels(container) {
+            const fieldsets = container.querySelectorAll('.stop-fieldset');
+            let visibleCount = 0;
+            fieldsets.forEach((fs) => {
+                // Apenas conta e rotula fieldsets que não estão marcados para DELETE (somente no modo EDIT)
+                if (fs.style.display !== 'none' || !fs.dataset.action) {
+                    visibleCount++;
+                    const
+                        legend = fs.querySelector('legend');
+                    if (legend) legend.textContent = `Parada ${visibleCount}`;
+                }
+            });
+        }
+
+        /** Lida com o envio do formulário unificado de Linha + Paradas (CRIAÇÃO) */
+        async function handleAddLineAndStops(e) {
+            e.preventDefault();
+            const lineName = document.getElementById('new_line_number').value.trim();
+            const stopsFieldsets = stopsContainer.querySelectorAll('.stop-fieldset');
+            const stopsData = [];
+            // 1. Coletar dados de todas as paradas
+            stopsFieldsets.forEach(fs => {
+                const selectEl = fs.querySelector('[name^="selected_point_"]');
+                const pointId = selectEl.value; // O ID é o valor selecionado
+                const selectedOption = selectEl.options[selectEl.selectedIndex];
+
+
+                // CAPTURA O NOME DA OPÇÃO SELECIONADA
+                const pointName = selectedOption ? selectedOption.dataset.name : '';
+
+                let schedule = fs.querySelector('[name^="schedule_"]').value.trim();
+                schedule = schedule.replace(/\s+/g, ''); // Remove todos os espaços em branco
+
+
+                if (pointId && pointName && schedule) {
+                    stopsData.push({
+                        pointId,
+                        pointName,
+
+                        schedule
+                    });
+                }
+            });
+            if (!lineName || stopsData.length === 0) {
+                showMessage('Preencha o número da linha e adicione pelo menos uma parada válida.', 'error');
+                return;
+            }
+
+            try {
+                // 2. Criar o documento da Linha principal
+                const lineRef = await addDoc(collection(db, LINES_COLLECTION_PATH), {
+                    number: lineName,
+
+                    createdAt: new Date().toISOString()
+                });
+                // 3. Criar a subcoleção de Paradas
+                const stopsColRef = collection(lineRef, 'paradas');
+                const batch = writeBatch(db);
+
+                stopsData.forEach((stop, index) => {
+                    const newStopRef = doc(stopsColRef); // Cria uma nova referência com ID gerado
+                    batch.set(newStopRef, {
+                        pointId: stop.pointId,
+
+                        pointName: stop.pointName,
+                        schedule: stop.schedule,
+                        order: index, // Garante a ordem de exibição
+                        createdAt: new Date().toISOString()
+
+                    });
+                });
+                await batch.commit();
+
+                showMessage(`Linha ${lineName} criada com sucesso e ${stopsData.length} parada(s) adicionada(s)!`, 'success');
+                toggleForm();
+                // Fecha o formulário após o sucesso
+
+            } catch (error) {
+                console.error("Erro ao adicionar Linha e Paradas:", error);
+                showMessage(`Erro ao adicionar linha: ${error.message || 'Verifique console e permissões.'}`, 'error');
+            }
+        }
+
+        /** Lida com o envio do formulário de EDIÇÃO de Linha + Paradas (ATUALIZAÇÃO) */
+        async function handleUpdateLineAndStops(e, lineId) {
+            e.preventDefault();
+            const lineName = e.target.edit_line_number.value.trim();
+            const stopsFieldsets = e.target.querySelectorAll('.stop-fieldset');
+            const stopsUpdates = [];
+            // 1. Coletar dados de todas as paradas (incluindo as marcadas para exclusão)
+            stopsFieldsets.forEach(fs => {
+                const stopDocId = fs.dataset.stopDocId;
+                const action = fs.dataset.action || 'UPDATE'; // DELETE ou UPDATE
+
+                // Se foi marcada para exclusão E não é um item novo, registra a 
+                // exclusão
+                if (action === 'DELETE' && stopDocId !== 'NEW') {
+                    stopsUpdates.push({
+                        stopDocId,
+                        action: 'DELETE'
+
+                    });
+                    return; // Pula a coleta dos dados do campo (pois já está oculto)
+                }
+
+                // Se o campo está oculto (e não foi marcado como delete), algo está errado.
+
+                if (fs.style.display === 'none')
+                    return;
+
+                const selectEl = fs.querySelector('[name^="selected_point_"]');
+                const pointId = selectEl.value;
+                const selectedOption = selectEl.options[selectEl.selectedIndex];
+                const pointName = selectedOption ? selectedOption.dataset.name : '';
+                let schedule = fs.querySelector('[name^="schedule_"]').value.trim();
+                schedule = schedule.replace(/\s+/g, '');
+                // Remove espaços em branco
+
+                // Se os dados estão incompletos em um campo VISÍVEL, falha
+                if (!lineName ||
+                    !pointId || !pointName || !schedule) {
+                    throw new Error(`Dados incompletos na Parada ${fs.querySelector('legend').textContent}.`);
+                }
+
+                stopsUpdates.push({
+                    stopDocId,
+                    action: stopDocId === 'NEW' ? 'ADD' : 'UPDATE', // É NEW se foi adicionado na edição
+                    pointId,
+
+                    pointName,
+                    schedule
+                });
+            });
+
+            if (!lineName || stopsUpdates.filter(u => u.action !== 'DELETE').length === 0) {
+                showMessage('Preencha o número da linha e adicione pelo menos uma parada válida (não excluída).', 'error');
+                return;
+            }
+
+            try {
+                const lineRef = doc(db, LINES_COLLECTION_PATH, lineId);
+                const stopsColRef = collection(lineRef, 'paradas');
+                const batch = writeBatch(db);
+
+                // 2. Atualizar o documento da Linha principal
+                batch.update(lineRef, {
+                    number: lineName,
+                    updatedAt: new Date().toISOString()
+                });
+                // 3. Processar as atualizações de paradas
+                let orderIndex = 0;
+                stopsUpdates.forEach(update => {
+                    if (update.action === 'DELETE') {
+                        // Excluir o documento da subcoleção
+                        batch.delete(doc(stopsColRef, update.stopDocId));
+
+                    } else if (update.action === 'ADD') {
+                        // Adicionar novo documento
+                        const newStopRef = doc(stopsColRef);
+                        batch.set(newStopRef, {
+
+                            pointId: update.pointId,
+                            pointName: update.pointName,
+                            schedule: update.schedule,
+
+                            order: orderIndex++,
+                            createdAt: new Date().toISOString()
+                        });
+                    } else if (update.action === 'UPDATE') {
+
+                        // Atualizar documento existente
+                        batch.update(doc(stopsColRef, update.stopDocId), {
+                            pointId: update.pointId,
+                            pointName: update.pointName,
+
+                            schedule: update.schedule,
+                            order: orderIndex++,
+                            updatedAt: new Date().toISOString()
+
+                        });
+                    }
+                });
+                await batch.commit();
+                showMessage(`Linha ${lineName} e suas paradas atualizadas com sucesso!`, 'success');
+                // Após salvar, o listener do Firestore re-renderiza o card.
+            } catch (error) {
+                console.error("Erro ao atualizar Linha e Paradas:", error);
+                showMessage(`Erro ao atualizar: ${error.message || 'Verifique console e permissões.'}`, 'error');
+            }
+        }
+
+        // ==========================================================
+        // 🔄 PASSO 4: EXIBIÇÃO EM TEMPO REAL (Com a Edição)
+        // ==========================================================
+        /** * Renderiza uma linha de ônibus na UI.
+        * @param {object} lineDoc - O documento principal da linha.
+        * @param {Array<object>} stops - As subcoleções de paradas da linha.
+        */
+        function renderLine(lineDoc, stops) {
+            const lineData = lineDoc.data();
+            const lineId = lineDoc.id;
+
+            // Tenta reusar o elemento existente ou cria um novo
+            let li = document.querySelector(`li[data-id="${lineId}"]`);
+            if (li) {
+                li.remove();
+            }
+            li = document.createElement('li');
+            li.classList.add('list-item', 'card', 'line-card');
+            li.dataset.id = lineId;
+
+            let stopsHtml = '';
+            if (stops.length > 0) {
+                // Ordena as paradas (opcionalmente por 'addedAt' se houver, ou apenas exibe)
+                stopsHtml = '<ul class="stop-list" style="margin-top: 10px; list-style: none; padding-left: 0;">' +
+                    stops.sort((a, b) => a.order - b.order).map(stop => {
+
+                        // BUSCA O PONTO COMPLETO NO ARRAY GLOBAL
+                        const foundPoint = allPoints.find(p => p.id === stop.pointId);
+                        let pointDisplayName = stop.pointName || stop.pointId;
+
+                        let pointAddress = '';
+
+                        if (foundPoint) {
+                            // 1. Usa o NOME + ENDEREÇO encontrado no array allPoints (ideal)
+
+                            pointDisplayName = foundPoint.name;
+                            pointAddress = foundPoint.address;
+                        }
+
+                        // Lógica de limpeza para garantir o nome correto (prioriza Endereço se o nome for genérico 'Ponto // 
+                        // XXXXX')
+                        let finalDisplayName
+                            = pointDisplayName;
+                        if (finalDisplayName.startsWith('Ponto ') && pointAddress !== 'Endereço não cadastrado') {
+                            finalDisplayName = pointAddress;
+                            pointAddress = '';
+                        } else if (finalDisplayName.startsWith('Ponto ')) {
+                            finalDisplayName = finalDisplayName.substring(6);
+                        }
+
+                        // 2. Monta o texto de exibição completo (Nome + Endereço opcional)
+                        const fullDisplay = `${finalDisplayName}${(pointAddress && pointAddress !== 'Endereço não cadastrado') ?
+                            ` (${pointAddress})` : ''}`;
+
+                        // NOVO CÓDIGO AQUI: Gera os "quadradinhos" para os horários
+                        const scheduleItems = stop.schedule.split(',')
+                            .map(h => h.trim())
+                            .filter(h =>
+                                h)
+                            .map(h => `<span class="schedule-item">${h}</span>`).join('');
+                        const scheduleWrapper = `<div class="schedule-wrapper">${scheduleItems}</div>`;
+
+                        return `
+                        <li>
+                            <p style="font-weight: bold; margin-bottom: 5px;">
+                                ${fullDisplay}
+      
+                            </p>
+                            <p style="font-size: 0.9em; color: #666; margin-top: 0;">Horários:
+                            </p>
+                
+                            ${scheduleWrapper}
+                        </li>
+                        `;
+                    }).join('') + '</ul>';
+            } else {
+                stopsHtml = '<p style="color: #999;">Nenhuma parada cadastrada.</p>';
+            }
+
+
+            li.innerHTML = `
+                <div class="view-mode">
+                    <div class="line-header">
+                        <h2>Linha: ${lineData.number}</h2>
+                       
+                        <div>
+                            <button class="btn-action-small edit-btn">Editar</button>
+                            <button class="btn-action-small delete-btn" data-id="${lineId}">Excluir</button>
+                        </div>
+              
+                    </div>
+                    <h4>Paradas:</h4>
+                    ${stopsHtml}
+                </div>
+
+                <form class="edit-line-form" style="display: none;">
+                   
+                    <h2>Editando Linha ${lineData.number}</h2>
+                    <div class="input-group">
+                        <label for="edit_line_number_${lineId}">Número da Linha:</label>
+                        <input type="text" id="edit_line_number_${lineId}" name="edit_line_number" value="${lineData.number}" required>
+                    
+                    </div>
+                    <h3>Paradas e Horários</h3>
+                    <div id="editStopsContainer_${lineId}" class="edit-stops-container">
+                    </div>
+                    <button type="button" class="btn-secondary btn-action-small add-edit-stop-btn">Adicionar Parada</button>
+           
+                    <br><br>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary btn-action-small cancel-edit-btn">Cancelar</button>
+                        <button type="submit" class="btn-primary btn-action-small">Salvar Alterações</button>
+              
+                    </div>
+                </form>
+            `;
+            linesListEl.appendChild(li);
+
+            // 4. Lógica de Edição/Exclusão do Card
+            const viewModeEl = li.querySelector('.view-mode');
+            const editFormEl = li.querySelector('.edit-line-form');
+            const editBtn = li.querySelector('.edit-btn');
+            const cancelEditBtn = li.querySelector('.cancel-edit-btn');
+            const addEditStopBtn = li.querySelector('.add-edit-stop-btn');
+            const editStopsContainer = li.querySelector(`#editStopsContainer_${lineId}`);
+            const toggleEditMode = (isEditing) => {
+                viewModeEl.style.display = isEditing ?
+                    'none' : 'block';
+                editFormEl.style.display = isEditing ? 'block' : 'none';
+                // Oculta o botão de ADICIONAR NOVO PONTO da tela principal enquanto edita
+                document.getElementById('openAddLineFormBtn').style.display = isEditing ?
+                    'none' : 'block';
+
+                if (isEditing) {
+                    // Limpa e popula o container de paradas do formulário de edição
+                    editStopsContainer.innerHTML = '';
+                    stops.forEach(stop => {
+                        // Passa pointId, schedule e o ID do documento da subcoleção
+                        addStopFieldset(editStopsContainer, stop.pointId, stop.schedule, stop.id);
+                    });
+                    // Garante que o contador global de índices não colida com os IDs existentes
+                    stopFieldIndex += stops.length;
+                }
+            };
+            // A. Listener para o botão EXCLUIR
+            li.querySelector('.delete-btn').addEventListener('click', async () => {
+                if (window.confirm(`Tem certeza que deseja EXCLUIR permanentemente a Linha ${lineData.number}?`)) {
+                    // **[CORREÇÃO ANTERIOR MANTIDA]**: Passa o número da linha para a função deleteLine
+                    await deleteLine(lineId, lineData.number);
+                }
+            });
+            // B. Listener para o botão EDITAR (alternar modo)
+            editBtn.addEventListener('click', () => toggleEditMode(true));
+            // C. Listener para o botão CANCELAR EDIÇÃO
+            cancelEditBtn.addEventListener('click', () => {
+                toggleEditMode(false);
+            });
+            // D. Listener para o botão ADICIONAR PARADA (na edição)
+            addEditStopBtn.addEventListener('click', () => addStopFieldset(editStopsContainer));
+            // E. Listener para o envio do formulário de EDIÇÃO
+            editFormEl.addEventListener('submit', (e) => handleUpdateLineAndStops(e, lineId));
+        }
+
+        /** Função para carregar todas as linhas e suas subcoleções de paradas */
+        function loadLines() {
+            if (!userId || !pointsInitialized) return;
+            // Só carrega se o usuário estiver logado E os pontos estiverem prontos
+
+            showMessage('Carregando dados das linhas em tempo real...', 'info');
+            const linesQuery = collection(db, LINES_COLLECTION_PATH);
+
+            // Monitora a coleção principal de linhas
+            onSnapshot(linesQuery, async (querySnapshot) => {
+                // Limpa a lista para evitar duplicatas
+                linesListEl.innerHTML = '';
+                showMessage(`Linhas: ${querySnapshot.size} encontradas.`, 'info');
+
+
+                // 1. Cria um array de Promessas para buscar as paradas de cada linha (subcoleção)
+                const linePromises = querySnapshot.docs.map(async (lineDoc) => {
+                    const lineId = lineDoc.id;
+                    const stopsColRef = collection(db, LINES_COLLECTION_PATH, lineId, 'paradas');
+
+
+                    try {
+                        // Busca one-time (getDocs) para a subcoleção de paradas
+                        const stopsSnapshot = await getDocs(stopsColRef);
+                        const stops = stopsSnapshot.docs.map(doc => ({
+
+                            id: doc.id, // Adiciona o ID do documento da subcoleção
+                            ...doc.data()
+                        }));
+                        return {
+                            lineDoc,
+                            stops
+                        };
+                    } catch (e) {
+                        console.error(`ERRO ao carregar paradas da Linha ${lineId}. Detalhes:`, e);
+                        return {
+                            lineDoc,
+                            stops: []
+                        };
+                    }
+                });
+                // 2. Espera que todas as buscas de subcoleções sejam concluídas
+                const results = await Promise.all(linePromises);
+                // 3. Renderiza todos os resultados de uma vez
+                results.forEach(({
+                    lineDoc,
+                    stops
+                }) => {
+
+                    renderLine(lineDoc, stops);
+                });
+            }, (error) => {
+                console.error("Erro ao carregar linhas em tempo real (Coleção Principal):", error);
+                showMessage('Erro ao carregar linhas do Firestore.', 'error');
+            });
+        }
+
+        /** * Deleta a linha principal e todas as suas subcoleções (paradas).
+        * @param {string} lineId - O ID do documento da linha.
+        * @param {string} lineNumber - O número da linha (ex: '101').
+        */
+        async function deleteLine(lineId, lineNumber) {
+            const lineRef = doc(db, LINES_COLLECTION_PATH, lineId);
+            try {
+                const batch = writeBatch(db);
+                // 1. Deletar a subcoleção 'paradas'
+                const stopsSnapshot = await getDocs(collection(lineRef, 'paradas'));
+                stopsSnapshot.docs.forEach(stopDoc => batch.delete(stopDoc.ref));
+
+                // 2. Deletar o documento da linha principal
+                batch.delete(lineRef);
+                await batch.commit();
+
+                // Usa lineNumber na mensagem
+                showMessage(`Linha ${lineNumber} excluída com sucesso!`, 'success');
+
+            } catch (error) {
+                console.error("Erro ao deletar linha:", error);
+                showMessage(`Erro ao excluir linha: ${error.message || 'Verifique console e permissões.'}`, 'error');
+            }
+        } 
+    </script>
+
+    <div class="content-wrapper">
+
+        <div class="top-banner">
+            <a href="adm_home.html">
+                <img src="/frontend/assets/logo/logo.png" alt="Logo">
+            </a>
+        </div>
+        <div class="linha-degrade"></div>
+        <div class="menu-icon" onclick="openMenu()">
+
+            <img src="/frontend/assets/icones/icone_menu.png" alt="Menu" class="menu-img">
+        </div>
+        <div id="sideMenu" class="side-menu">
+            <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+            <a href="adm_home.html">Página Inicial</a>
+            <a href="adm_paineis.html">Painéis</a>
+            <a href="adm_pontos.html">Pontos</a>
+            <a href="adm_linhas.html">Linhas</a>
+
+        </div>
+
+        <div class="container">
+            <div class="painel-header">
+                <h1>Linhas Cadastradas</h1>
+                <button id="openAddLineFormBtn" class="btn-primary">
+                    + Adicionar Nova Linha
+
+                </button>
+            </div>
+
+            <p id="statusMessage" class="status-message info"></p>
+
+            <div id="newLineFormContainer" class="card" style="display: none;
+            margin-bottom: 20px;">
+                <form id="addLineAndStopsForm">
+                    <h2>Adicionar Nova Linha</h2>
+                    <div class="input-group">
+                        <label for="new_line_number">Número da Linha:</label>
+
+                        <input type="text" id="new_line_number" required>
+                    </div>
+                    <h3>Paradas e Horários</h3>
+                    <div id="stopsContainer">
+
+                    </div>
+                    <button type="button" id="addStopFieldBtn" class="btn-secondary btn-action-small">Adicionar
+                        Parada</button>
+                    <br><br>
+                    <div class="form-actions">
+                        <button type="button" id="cancelAddLineBtn"
+                            class="btn-secondary btn-action-small">Cancelar</button>
+
+                        <button type="submit" class="btn-primary btn-action-small">Salvar Linha</button>
+                    </div>
+                </form>
+            </div>
+
+            <ul id="linesList"></ul>
+
+
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="footer-container">
+
+            <div class="footer-section links">
+                <h3>Mapa do site</h3>
+                <ul>
+                    <li><a href="adm_home.html">Página Inicial</a></li>
+
+                    <li><a href="adm_paineis.html">Painéis</a></li>
+                    <li><a href="adm_pontos.html">Pontos</a></li>
+                    <li><a href="adm_linhas.html">Linhas</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section contact">
+                <h3 class="subtitulo">Contato</h3>
+                <p><i class="fas fa-envelope"><img src="/frontend/assets/icones/icone_email.png" alt="icon email"
+                            width="24px"></i>|
+                    intelibus@contato.com </p>
+                <p><i class="fas fa-phone"><img src="/frontend/assets/icones/icone_telefone.png" alt="icon telefone"
+                            width="24px"></i>|
+                    (19) 0000-0000</p>
+            </div>
+            <div class="footer-section links">
+                <div class="footer-section contact">
+                    <h3 class="subtitulo">Redes Sociais </h3>
+
+                    <p><i class="fas fa-envelope"><img src="/frontend/assets/icones/icone_instagram.png" alt=""
+                                width="24px"></i><a href="https://www.instagram.com/">instagram</a>
+                    </p>
+                    <p><i class="fas fa-phone"><img src="/frontend/assets/icones/icone_facebook.png" alt="icon telefone"
+                                width="24px"></i><a href="https://www.facebook.com/?locale=pt_BR">facebook</a></p>
+                </div>
+
+            </div>
+
+        </div>
+        <div class="footer-bottom">
+            <p>&copy;
+                2025 INTELIBUS - CNPJ 00 000 000/0000-00. | Todos os direitos reservados.</p>
+        </div>
+
+    </footer>
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+    </script>
+
+    <script>
+        // Funções para abrir e fechar o menu lateral
+        function openMenu() {
+            document.getElementById("sideMenu").style.width = "250px";
+            // ❌ REMOVIDO: document.body.style.overflow = "hidden"; // Impede o scroll da página principal
+        }
+
+        function closeMenu() {
+            document.getElementById("sideMenu").style.width = "0";
+            // ❌ REMOVIDO: document.body.style.overflow = "auto";
+        }
+    </script>
+
+</body>
+
+</html>

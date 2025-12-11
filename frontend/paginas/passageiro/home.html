@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Inicial</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+    <style>
+        /* ========================================================== */
+        /* 📌 ESTRUTURA PARA FIXAR O FOOTER NO FINAL (Sticky Footer) */
+        /* ========================================================== */
+        :root {
+            /* Adicionado para os links do footer */
+            --cor-link-footer: #0c48a1;
+            /* NOVO: Variável da cor da estrela */
+            --cor-estrela-favorito: #FF6648;
+        }
+
+        html,
+        body {
+            height: 100%;
+            /* Garante 100% da altura da viewport */
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            /* Organiza o conteúdo verticalmente */
+            background: #f5f5f5;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            /* 🔥 Empurra o footer para o fim, ocupando o espaço restante */
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 20px;
+        }
+
+        /* 🖼️ DIV CONTAINER (Para centralizar e limitar a largura do conteúdo principal) */
+        .container {
+            max-width: 1200px;
+            width: 90%;
+            margin: 0 auto;
+            padding-top: 20px;
+        }
+
+        /* ========================================================== */
+        /* 🏗️ ESTILOS DO FOOTER (Padronizado) */
+        /* ========================================================== */
+        .footer {
+            background-color: #ffffff;
+            color: #000000;
+            padding: 40px 20px 20px;
+            font-family: Arial, sans-serif;
+            border-top: 1px solid #ddd;
+        }
+
+        .footer-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: auto;
+            gap: 40px;
+        }
+
+        .footer-section {
+            flex: 1 1 250px;
+            /* Ajustado para 3 colunas */
+        }
+
+        .footer-section h3,
+        .footer-section .subtitulo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #000000;
+            margin-bottom: 15px;
+        }
+
+        .footer-section.contact p,
+        .footer-section.social-media p {
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .footer-section img {
+            margin-right: 8px;
+            min-width: 20px;
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Estilo dos links do rodapé (Mapa do Site) */
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-section ul li a {
+            padding: 5px 0;
+            display: block;
+        }
+
+
+        .footer-section a {
+            text-decoration: none;
+            color: #555;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .footer-section a:hover {
+            color: var(--cor-link-footer);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 15px;
+            font-size: 14px;
+            color: #777;
+            border-top: 1px solid #eee;
+        }
+
+        /* ========================================================== */
+        /* ⭐️ ESTILOS PARA ESTRELA FAVORITO (CSS PURO) */
+        /* ========================================================== */
+        .location-item {
+            /* Mantém o flex para alinhar os elementos */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .location-details {
+            /* Permite que os detalhes ocupem o espaço no meio */
+            flex-grow: 1;
+            margin-left: 10px;
+        }
+        
+        /* Contêiner da estrela */
+        .favorite-star-icon {
+            display: flex;
+            align-items: center;
+            margin-left: 15px;
+        }
+
+        /* Estrela CSS Pura (Usando o caractere de estrela unicode) */
+        .star-icon {
+            font-size: 24px; /* Tamanho da estrela */
+            line-height: 1; /* Garante que a altura da linha não estique o contêiner */
+            color: var(--cor-estrela-favorito); /* Aplica a cor #FF6648 */
+        }
+    </style>
+</head>
+
+<body>
+
+    <script type="module">
+        // ==========================================================
+        // 🚨 RISCO DE SEGURANÇA: SCRIPT DO FIREBASE E FIRESTORE COM CREDENCIAIS EXPOSTAS
+        // ==========================================================
+
+        // Importa as funções necessárias do Firebase SDK Modular
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
+        // Importa as funções para o Firestore
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+        // Sua configuração do Firebase (RESTAURADA)
+        const firebaseConfig = {
+            apiKey: "AIzaSyC1HmcMKzovu2LM7RmxBq5f6zsun76YZIs",
+            authDomain: "intelibustcc.firebaseapp.com",
+            projectId: "intelibustcc",
+            storageBucket: "intelibustcc.firebasestorage.app",
+            messagingSenderId: "212399344112",
+            appId: "1:212399344112:web:03dbb7d367f5542dc83535",
+            measurementId: "G-RWN8EMEW63"
+        };
+
+        // Inicializa o Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+
+        // Inicializa o Firestore
+        const db = getFirestore(app);
+
+        // Torna 'db' e funções do Firestore globalmente acessíveis
+        window.db = db;
+        window.firestoreModule = {
+            collection,
+            getDocs
+        };
+    </script>
+
+    <div class="top-banner">
+        <a href="home.html">
+            <img src="/frontend/assets/logo/logo.png" alt="Logo"></a>
+    </div>
+    <div class="linha-degrade"></div>
+
+    <div class="menu-icon" onclick="openMenu()">
+        <img src="/frontend/assets/icones/icone_menu.png" alt="Menu" class="menu-img">
+    </div>
+
+    <div id="sideMenu" class="side-menu">
+        <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+
+        <a href="home.html">Início</a>
+        <a href="agendamento.html">Agendar</a>
+        <a href="notificacoes.html">Notificações</a>
+        <a href="perfil.html">Perfil</a>
+        <a href="perfil.html">Histórico</a>
+        <a href="sobre.html">Sobre</a>
+
+    </div>
+
+    <div class="content-wrapper">
+        <div class="container">
+
+            <br><br>
+            <div class="input-group-wrapper">
+                <div class="input-group">
+
+                    <div class="input-line">
+                        <span class="icon">
+                            <img src="/frontend/assets/icones/icone_loc_atual_pesq.png" alt="Ícone de Origem">
+                        </span>
+                        <input type="text" id="origin" class="location-field" placeholder="Ponto de partida (Origem)">
+                    </div>
+
+                    <div class="input-line">
+                        <span class="icon">
+                            <img src="/frontend/assets/icones/icone_loc__chegada_pesq.png" alt="Ícone de Destino">
+                        </span>
+                        <input type="text" id="destination" class="location-field" placeholder="Seu destino">
+                    </div>
+
+                </div>
+
+                <button class="swap-button" id="swapBtn" aria-label="Trocar Origem e Destino">
+                    <img src="/frontend/assets/icones/icone_trocar_pesq.png" alt="Ícone de Troca">
+                </button>
+            </div>
+
+            <div class="map-container" id="map">
+            </div>
+            <br><br>
+            <div class="segmented-control-container">
+                <div class="segmented-control">
+                    <button class="segment-button active" data-target="pontos">Pontos Próximos</button>
+                    <button class="segment-button" data-target="favoritos">Favoritos</button>
+                </div>
+
+                <div class="content-area">
+                    <div id="pontos" class="tab-content active">
+                        <div class="location-item">
+                            <div class="location-icon blue-icon">
+                                <img src="/frontend/assets/icones/icone_ponto.png" alt="Ponto de Localização">
+                            </div>
+                            <div class="location-details">
+                                <strong>Terminal Mercado BRT</strong><br>
+                                Rua João Penido Burnier, Centro
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="favoritos" class="tab-content">
+                        <p>Carregando favoritos...</p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br><br>
+    </div>
+    <footer class="footer">
+        <div class="footer-container">
+
+            <div class="footer-section links">
+                <h3 class="subtitulo">Mapa do site</h3>
+                <ul>
+                    <li><a href="home.html">Inicial</a></li>
+                    <li><a href="agendamento.html">Agendamento</a></li>
+                    <li><a href="notificacoes.html">Notificações</a></li>
+                    <li><a href="perfil.html">Perfil</a></li>
+                    <li><a href="perfil.html">Histórico</a></li>
+                    <li><a href="sobre.html">Sobre</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section contact">
+                <h3 class="subtitulo">Contato</h3>
+                <p><img src="/frontend/assets/icones/icone_email.png" alt="Icone E-mail"> intelibus@gmail.com</p>
+                <p><img src="/frontend/assets/icones/icone_telefone.png" alt="Icone Telefone"> (19) 0000-0000</p>
+            </div>
+
+            <div class="footer-section social-media">
+                <h3 class="subtitulo">Redes Sociais </h3>
+                <p><img src="/frontend/assets/icones/icone_instagram.png" alt="Icone Instagram"><a
+                        href="https://www.instagram.com/"> Instagram</a></p>
+                <p><img src="/frontend/assets/icones/icone_facebook.png" alt="Icone Facebook"><a
+                        href="https://www.facebook.com/?locale=pt_BR"> Facebook</a></p>
+            </div>
+
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 INTELIBUS - CNPJ 00 000 000/0000-00. | Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        // ==========================================================
+        // 💾 FUNÇÃO PARA LER DADOS REAIS DO FIRESTORE (FAVORITOS)
+        // (MODIFICADA PARA EXIBIR APENAS DADOS DE EXEMPLO)
+        // ==========================================================
+        async function loadFavoritos() {
+            const favoritosList = document.querySelector('#favoritos');
+
+            // 🛑 NOVO: HTML estático com os dois pontos de exemplo solicitados
+            // Ícone da estrela substituído por um <span> com o caractere unicode (⭐)
+            // que será estilizado pelo CSS com a cor #FF6648.
+            const staticExampleHTML = `
+                <div class="location-item">
+                    <div class="location-icon blue-icon">
+                        <img src="/frontend/assets/icones/icone_ponto.png" alt="Favorito Exemplo 1">
+                    </div>
+                    <div class="location-details">
+                        <strong>Terminal Barão Geraldo</strong><br>
+                        Rua Luiz Vicentin, s/n, Barão Geraldo
+                    </div>
+                    <div class="favorite-star-icon">
+                        <span class="star-icon">★</span>
+                    </div>
+                </div>
+                <div class="location-item">
+                    <div class="location-icon blue-icon">
+                        <img src="/frontend/assets/icones/icone_linha.png" alt="Favorito Exemplo 2">
+                    </div>
+                    <div class="location-details">
+                        <strong>Linha BRT10</strong><br>
+                        Terminal Campos Elíseos (Rua Bragança Paulista, 647, Jardim Novo Campos Elíseos)
+                    </div>
+                    <div class="favorite-star-icon">
+                        <span class="star-icon">★</span>
+                    </div>
+                </div>
+            `;
+
+            // Atribui o HTML de exemplo diretamente, ignorando a lógica do Firebase
+            favoritosList.innerHTML = staticExampleHTML;
+        }
+
+
+        // ==========================================================
+        // LÓGICA DE INTERFACE (MANTIDA)
+        // ==========================================================
+
+        // Funcões para abrir e fechar o menu lateral
+        function openMenu() {
+            document.getElementById("sideMenu").style.width = "250px";
+        }
+
+        function closeMenu() {
+            document.getElementById("sideMenu").style.width = "0";
+        }
+
+
+        // Lógica para o controle segmentado (troca de abas)
+        document.addEventListener('DOMContentLoaded', function () {
+            const buttons = document.querySelectorAll('.segment-button');
+            const contents = document.querySelectorAll('.tab-content');
+
+            buttons.forEach(button => {
+                button.addEventListener('click', function () {
+                    // 1. Remove 'active' de todos os botões e conteúdos
+                    buttons.forEach(btn => btn.classList.remove('active'));
+                    contents.forEach(content => content.classList.remove('active'));
+                    // 2. Adiciona 'active' ao botão clicado
+                    this.classList.add('active');
+                    // 3. Pega o ID do conteúdo alvo
+                    const targetId = this.getAttribute('data-target');
+                    const targetContent = document.getElementById(targetId);
+                    // 4. Adiciona 'active' ao conteúdo alvo
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                    }
+                    // 5. Se o alvo for 'favoritos', recarrega os dados (agora estáticos)
+                    if (targetId === 'favoritos') {
+                        loadFavoritos();
+                    }
+                });
+            });
+
+            // Garante que os favoritos estáticos sejam carregados ao iniciar
+            loadFavoritos();
+        });
+
+        // Troca dos campos de origem/destino
+        document.getElementById('swapBtn').addEventListener('click', function () {
+            const originField = document.getElementById('origin');
+            const destinationField = document.getElementById('destination');
+            const tempValue = originField.value;
+
+            originField.value = destinationField.value;
+            destinationField.value = tempValue;
+        });
+
+        // ==========================================================
+        // 🗺️ FUNÇÕES DO GOOGLE MAPS (COM ROTA)
+        // ==========================================================
+
+        //Novos marcadores (RESTAURADOS)
+        const MARCADORES_ONIBUS = [
+            {
+                nome: "Terminal Mercado",
+                endereco: "Rua Álvares Machado, Campinas - SP",
+                lat: -22.9059,
+                lng: -47.0601
+            },
+            {
+                nome: "Av. Francisco Glicério",
+                endereco: "Próximo à Catedral Metropolitana",
+                lat: -22.9068,
+                lng: -47.0592
+            },
+            {
+                nome: "Unicamp - Portaria Principal",
+                endereco: "R. Érico Veríssimo, Campinas - SP",
+                lat: -22.8175,
+                lng: -47.0694
+            },
+            {
+                nome: "Shopping Parque D. Pedro",
+                endereco: "Av. Guilherme Campos, 500",
+                lat: -22.8596,
+                lng: -47.0652
+            },
+            {
+                nome: "Largo do Rosário",
+                endereco: "Ponto na Av. Francisco Glicério",
+                lat: -22.9080,
+                lng: -47.0583
+            },
+            {
+                nome: "Av. Saudade (Cemitério)",
+                endereco: "Ponto na Avenida da Saudade",
+                lat: -22.9009,
+                lng: -47.0538
+            },
+            {
+                nome: "Av. Orozimbo Maia",
+                endereco: "Ponto próximo à Rua Barão de Jaguara",
+                lat: -22.9001,
+                lng: -47.0575
+            },
+            {
+                nome: "Rua 13 de Maio (Centro)",
+                endereco: "Ponto de embarque na principal rua de comércio",
+                lat: -22.9088,
+                lng: -47.0571
+            },
+            {
+                nome: "Viaduto Cury (Rodoviária)",
+                endereco: "Ponto próximo ao acesso do Terminal Metropolitano",
+                lat: -22.9065,
+                lng: -47.0670
+            },
+            {
+                nome: "Avenida Brasil (Cambuí)",
+                endereco: "Ponto próximo à Rua Coronel Quirino",
+                lat: -22.8943,
+                lng: -47.0558
+            }
+        ];
+
+        //Cria variáveis globais para o mapa, DirectionsService e DirectionsRenderer (RESTAURADOS)
+        let map;
+        let directionsService;
+        let directionsRenderer;
+
+        //Funçao para adicionar os marcadores no mapa (RESTAURADA)
+        function adicionarMarcadores(map, pontos) {
+            pontos.forEach((data) => {
+                if (data.lat && data.lng) {
+                    const position = {
+                        lat: data.lat,
+                        lng: data.lng
+                    };
+                    // Usa google.maps.Marker como estava nos seus arquivos
+                    const marker = new google.maps.Marker({
+                        position: position,
+                        map: map,
+                        title: data.nome
+                    });
+
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: `<strong>${data.nome}</strong><br>${data.endereco}`
+                    });
+                    marker.addListener("click", () => {
+                        infoWindow.open({
+                            anchor: marker,
+                            map,
+                        });
+                    });
+                }
+            });
+        }
+
+        //Função para calcular e desenhar a rota (RESTAURADA)
+        function calcularDesenharRota() {
+            if (!directionsService || !directionsRenderer) {
+                console.error("Directions Service ou Renderer não inicializado.");
+                return;
+            }
+            if (MARCADORES_ONIBUS.length < 2) {
+                console.warn("Rota requer pelo menos 2 pontos.");
+                return;
+            }
+
+            const pontoDePartida = MARCADORES_ONIBUS[0];
+            const pontoFinal = MARCADORES_ONIBUS[MARCADORES_ONIBUS.length - 1];
+
+            const waypoints = MARCADORES_ONIBUS.slice(1, MARCADORES_ONIBUS.length - 1).map(pontoIntermediario => ({
+                location: {
+                    lat: pontoIntermediario.lat,
+                    lng: pontoIntermediario.lng
+                },
+                stopover: true // Indica que o trajeto deve passar por esse ponto
+            }));
+
+            directionsService.route({
+                origin: {
+                    lat: pontoDePartida.lat,
+                    lng: pontoDePartida.lng
+                },
+                destination: {
+                    lat: pontoFinal.lat,
+                    lng: pontoFinal.lng
+                },
+                waypoints: waypoints,
+                optimizeWaypoints: true,
+                travelMode: google.maps.TravelMode.DRIVING
+            },
+                (response, status) => {
+                    if (status === "OK") {
+                        directionsRenderer.setDirections(response);
+                    } else {
+                        window.alert("Requisição de rota falhou devido a: " + status);
+                    }
+                }
+            );
+        }
+
+        //Função principal para iniciar o mapa (RESTAURADA)
+        function initMap() {
+            const centerCoords = {
+                lat: -22.9056,
+                lng: -47.0608
+            };
+
+            //Inicializa o mapa e atribui à variável global 'map'
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: centerCoords,
+                zoom: 13,
+            });
+
+            //Iniciar o Directions Service e Renderer
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer({
+                map: map,
+                suppressMarkers: true
+            });
+
+            //Chama a função para adicionar os marcadores com dados dos pontos
+            adicionarMarcadores(map, MARCADORES_ONIBUS);
+
+            //Chama a função para calcular e desenhar a rota entre os pontos
+            calcularDesenharRota();
+        }
+    </script>
+    <script async
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBnSHQstZM4rxzCFqI6CJ1NevzGCutNvYc&callback=initMap">
+        </script>
+
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+    </script>
+
+</body>
+
+</html>

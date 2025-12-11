@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADM - Pontos</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+
+    <script>
+        const userRole = localStorage.getItem('userRole');
+if (userRole !== 'adm') {
+            console.error("Acesso negado! Você precisa ser um Administrador.");
+window.location.href = "../passageiro/login.html";
+        }
+    </script>
+</head>
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>ADM Pontos</title>
+    <style>
+        /* ========================================================== */
+        /* 📌 ESTRUTURA PARA FIXAR O FOOTER NO FINAL (STICKY FOOTER) */
+        /* ========================================================== */
+        html,
+        body {
+            height: 100%;
+margin: 0;
+            background: #f5f5f5;
+            /* Adiciona fundo consistente */
+        }
+
+        body {
+            display: flex;
+flex-direction: column;
+        }
+
+        .content-wrapper {
+            flex: 1;
+/* 🔥 empurra o footer para o fim */
+            display: flex;
+flex-direction: column;
+        }
+
+        /* ========================================================== */
+        /* 🎨 PALETA DE CORES (ADICIONADA PARA O FOOTER) */
+        /* ========================================================== */
+        :root {
+            --cor-rosa: #84AFFB;
+--cor-azul: #B7CF4F;
+            --cor-laranja: #FF6648;
+            --cor-link-footer: #0c48a1;
+            /* Cor para links do footer */
+        }
+
+        /* ========================================================== */
+        /* 🏗️ FOOTER (Estilos do adm_home.txt) */
+        /* ========================================================== */
+        .footer {
+            background-color: #ffffff;
+color: #000000;
+            padding: 40px 20px 20px;
+            font-family: Arial, sans-serif;
+            border-top: 1px solid #ddd;
+            margin-top: 40px;
+}
+
+        .footer-container {
+            display: flex;
+flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: auto;
+            gap: 40px;
+}
+
+        .footer-section {
+            flex: 1 1 300px;
+}
+
+        .footer-section h3,
+        .footer-section .subtitulo {
+            font-size: 20px;
+font-weight: bold;
+            color: #000000;
+            margin-bottom: 15px;
+        }
+
+        .footer-section.contact p {
+            display: flex;
+align-items: center;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .footer-section img {
+            margin-right: 8px;
+min-width: 20px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+padding: 0;
+        }
+
+        .footer-section li {
+            margin-bottom: 8px;
+}
+
+        .footer-section a {
+            text-decoration: none;
+color: #555;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .footer-section a:hover {
+            color: var(--cor-link-footer);
+}
+
+        .footer-bottom {
+            text-align: center;
+margin-top: 30px;
+            padding-top: 15px;
+            font-size: 14px;
+            color: #777;
+            border-top: 1px solid #eee;
+}
+
+        /* ========================================================== */
+        /* 🚩 ESTILOS ORIGINAIS DE ADM_PONTOS.TXT */
+        /* ========================================================== */
+        .container {
+            /* 🚨 MODIFICAÇÕES CRUCIAIS AQUI */
+            /* Removido max-width: 700px;
+e margin: 0 auto; */
+            /* Novo: Largura para ocupar o espaço restante após a margem de 10% */
+            width: 80%;
+/* Alinha todo o conteúdo à esquerda com 10% de margem */
+            margin-left: 10%;
+padding: 20px 0;
+            /* Ajusta o padding horizontalmente se necessário */
+        }
+
+        .card {
+            border: 1px solid #ccc;
+border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+/* Modificações para aumentar o tamanho do card */
+            width: 100%;
+/* Garante que o card ocupe a largura máxima do container (80%) */
+            max-width: none;
+/* Garante que o card não seja limitado internamente */
+        }
+
+        .list-item {
+            list-style: none;
+background-color: #f9f9f9;
+        }
+
+        /* Garante que o título e o botão fiquem lado a lado */
+        .painel-header {
+            display: flex;
+justify-content: space-between;
+            /* Espaçamento entre o título e o botão */
+            align-items: center;
+/* Alinha verticalmente no centro */
+            margin-bottom: 20px;
+/* Adiciona a margem inferior para separar do conteúdo */
+        }
+
+        .line-header {
+            display: flex;
+justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ddd;
+}
+
+        .stop-list {
+            padding-left: 20px;
+list-style: disc;
+        }
+
+        .info-text {
+            color: #666;
+font-style: italic;
+        }
+
+        .status-message {
+            padding: 10px;
+border-radius: 5px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .status-message.error {
+            background-color: #fdd;
+color: #c00;
+        }
+
+        .status-message.success {
+            background-color: #dfd;
+color: #0c0;
+        }
+
+        /* Estilo para o campo select */
+        select[name^="selected_point_"] {
+            width: 100%;
+padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+}
+
+        /* Adicionado para garantir que os inputs preencham a nova largura */
+        .input-group input,
+        .input-group select {
+            width: 100%;
+padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+}
+
+        /* --- ESTILOS PARA O CARD DE LINHA INTERNO --- */
+
+        /* 1. Arranja o espaçamento e borda do card interno */
+        .line-card {
+            list-style: none;
+background-color: #f9f9f9;
+            /* Fundo branco para se destacar do contêiner */
+            border: 1px solid #ddd;
+border-radius: 5px;
+            padding: 15px;
+            /* Diminui o padding interno para arranjar o espaçamento */
+            margin-bottom: 15px;
+/* Adiciona margem entre os cards de linha */
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+        /* Remove o estilo de lista padrão do <ul> que contém os cards de linha */
+        #linesList {
+            padding-left: 0;
+list-style-type: none;
+        }
+
+        /* 2. Layout para alinhar o texto da linha e o botão de exclusão */
+        .line-info-header {
+            display: flex;
+justify-content: space-between;
+            /* Move o botão para a direita */
+            align-items: center;
+/* Alinha verticalmente no centro */
+            margin-bottom: 10px;
+padding-bottom: 10px;
+            /* Adicionado para separar o header do conteúdo */
+            border-bottom: 1px solid #eee;
+}
+
+        .line-info-header p,
+        .line-info-header span {
+            margin: 0;
+/* Remove margem padrão do parágrafo */
+            font-weight: bold;
+}
+
+        /* ESTILO PARA BOTÃO 'EXCLUIR LINHA' */
+        .delete-btn {
+            /* Antes era .btn-delete */
+            padding: 8px 15px;
+/* Diminui o padding para tornar o botão menor */
+            background-color: #FF6648;
+/* Cor vermelha para exclusão */
+            color: white;
+border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+/* Opcional: diminui a fonte */
+            margin-left: 20px;
+/* Garante que haja espaço entre o texto e o botão */
+            width: auto;
+/* Não ocupa toda a largura */
+            flex-shrink: 0;
+/* Impede que ele diminua */
+        }
+
+        .delete-btn:hover {
+            background-color: #fa320a;
+}
+
+        /* Estilo para a lista de paradas dentro do card de linha */
+        .line-stops ul {
+            padding-left: 20px;
+margin-top: 5px;
+            list-style-type: disc;
+        }
+
+        .line-stops li {
+            margin-bottom: 5px;
+}
+
+        /* --- ESTILOS PARA OS BOTÕES DO FORMULÁRIO (MENORES) --- */
+
+        /* Classe base para botões que devem ser menores e de largura automática */
+        .btn-action-small {
+            padding: 8px 15px;
+/* <--- FORMATO UNIFORME: Mesmo padding do delete-btn */
+            font-size: 14px;
+width: auto;
+            /* Garante que a largura seja apenas o conteúdo */
+            flex-grow: 0 !important;
+/* Evita que ocupe todo o espaço disponível no flex container */
+            border-radius: 8px;
+/* <--- FORMATO UNIFORME: Mesmo border-radius do delete-btn */
+        }
+
+        /* Estilo Específico para o botão EDITAR (Cor diferente para Ação Secundária de Edição) */
+        .btn-action-small.edit-btn {
+            background-color: #007bff;
+/* Cor Azul, mais usual para Edição */
+            color: white;
+/* Hereda padding/border-radius de .btn-action-small */
+            margin-right: 10px;
+/* Espaço entre Editar e Excluir */
+            /* Remove a margem extra do btn-secondary anterior se houver */
+        }
+
+        .btn-action-small.edit-btn:hover {
+            background-color: #0056b3;
+}
+
+        /* Reajuste da cor padrão do btn-secondary (usado no CANCELAR) */
+        .btn-secondary {
+            background-color: #6c757d;
+/* Exemplo de cor cinza */
+            color: white;
+border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+}
+
+
+        /* Aplica o estilo aos botões específicos do formulário de nova linha */
+        #addStopFieldBtn {
+            /* Botão "+ Adicionar Ponto de Parada" */
+            /* Mantém o estilo da classe .btn-secondary mas com tamanho menor */
+
+
+            display: block;
+/* Para não ocupar toda a largura */
+            margin-bottom: 15px;
+width: auto;
+        }
+
+        /* Estilo para o botão 'Remover Parada' dentro do fieldset */
+        .remove-stop-btn {
+            /* Se você não tem um estilo para .btn-danger, crie um: */
+            background-color: #dc3545;
+color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 8px 15px;
+/* Tamanho pequeno */
+            font-size: 14px;
+            margin-top: 10px !important;
+display: block;
+            /* Ocupa a largura, mas você quer ele menor */
+            width: auto;
+/* Não ocupa toda a largura */
+            float: right;
+/* Alinha à direita (opcional) */
+            clear: both;
+}
+
+        .remove-stop-btn:hover {
+            background-color: #c82333;
+}
+
+        /* Ajusta o layout dos botões "Salvar" e "Cancelar" */
+        .form-actions {
+            display: flex;
+gap: 10px;
+            /* Alinha os botões à direita (opcional) */
+            justify-content: flex-end;
+}
+
+        /* Aplica o estilo pequeno para Salvar e Cancelar */
+        .form-actions .btn-primary,
+        .form-actions .btn-secondary {
+            /* As classes de botão de framework (se houver) provavelmente definem flex-grow: 1, 
+            então garantimos que eles sejam pequenos: */
+            width: auto;
+padding: 8px 15px;
+            /* Ajustado para 8px 15px */
+            font-size: 14px;
+flex-grow: 0;
+            border-radius: 8px;
+            /* Ajustado para 8px */
+        }
+
+        /* Ajuste para o formulário de edição dentro do card */
+        .edit-form .input-group {
+            margin-bottom: 10px;
+}
+
+
+        /* --- NOVO ESTILO PARA OS HORÁRIOS COM BORDER (Igual à imagem) --- */
+
+        /* Oculta o span original que contém a lista de horários unida por '|'
+*/
+        .schedule-text {
+            display: none !important;
+}
+
+        /* 2. Estilo para o contêiner dos horários (para que fiquem lado a lado) */
+        .schedule-wrapper {
+            display: flex;
+flex-wrap: wrap;
+            /* Permite que os horários quebrem a linha */
+            gap: 8px;
+/* Espaço entre os horários */
+            margin-top: 5px;
+/* Pequena margem acima */
+        }
+
+        /* 3. O estilo de cada bloco de horário (o "quadradinho branco") */
+        .schedule-item {
+            background-color: #ffffff;
+/* Fundo branco (para destacar do cinza da tela) */
+            color: #333;
+/* Cor do texto */
+            padding: 5px 10px;
+/* Preenchimento interno */
+            border: 1px solid #ddd;
+/* Borda sutil (opcional, se quiser mais nítido) */
+            border-radius: 6px;
+/* Bordas arredondadas */
+            font-size: 14px;
+/* Tamanho da fonte */
+            font-weight: 500;
+box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            /* Sombra sutil para profundidade */
+            /* Garante que o item não encolha nem cresça */
+            flex-shrink: 0;
+}
+
+        /* --- CORREÇÃO DE FORMATAÇÃO E ALINHAMENTO INLINE --- */
+
+        /* 1. Alinhamento Vertical para a Lista de Linhas */
+        .stop-list li {
+            display: flex;
+/* Transforma o item da lista em um container flexível */
+            align-items: flex-start; /* MODIFICADO: Alinha os itens ao topo */
+            list-style: none;
+/* Remove o marcador de lista padrão (disc) */
+            padding-left: 0;
+margin-bottom: 8px;
+            /* NOVO: Adiciona linha de separação entre as linhas de ônibus */
+            border-bottom: 1px solid #aaa; /* AGORA É LINHA RETA E CINZA */
+            padding-bottom: 10px; 
+            margin-bottom: 15px;
+        }
+
+        /* NOVO: Garante que o último item não tenha borda de separação */
+        .line-stops .stop-list li:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        /* 2. Wrapper para os Horários */
+        .schedule-line-wrapper {
+            display: flex;
+/* Usa flex para os horários internos */
+            flex-wrap: wrap;
+/* Permite que os horários quebrem a linha se não couberem */
+            gap: 5px;
+/* Espaço entre os horários */
+            margin-left: 10px;
+/* Espaço entre o número da linha e o primeiro horário */
+        }
+
+        /* --- CORREÇÃO DE ESTILO: Deixa o nome do ponto com peso normal --- */
+        .line-info-header .view-commonName {
+            font-weight: normal;
+/* Sobrescreve o 'bold' padrão do <strong> */
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module">
+        // ==========================================================
+        // 🚀 PASSO 1: INICIALIZAÇÃO DO FIREBASE E AUTH
+        // ==========================================================
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import {
+            getAuth,
+            onAuthStateChanged,
+            signInWithCustomToken,
+            signInAnonymously
+        } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import {
+            getFirestore,
+            collection,
+            onSnapshot,
+            addDoc,
+            doc,
+            deleteDoc,
+            getDocs,
+            setLogLevel,
+   
+         updateDoc // <--- ADICIONADO PARA A FUNÇÃO DE ATUALIZAR
+        } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+// --- Variáveis de Configuração Global ---
+        const HARDCODED_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyC1HmcMKzovu2LM7RmxBq5f6zsun76YZIs",
+            authDomain: "intelibustcc.firebaseapp.com",
+            projectId: "intelibustcc",
+            storageBucket: "intelibustcc.firebasestorage.app",
+            messagingSenderId: "212399344112",
+            appId: "1:212399344112:web:03dbb7d367f5542dc83535",
+     
+       measurementId: "G-RWN8EMEW63"
+        };
+let firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ?
+__initial_auth_token : null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+if (Object.keys(firebaseConfig).length === 0) {
+            firebaseConfig = HARDCODED_FIREBASE_CONFIG;
+}
+
+        let auth, db;
+        let userId = null;
+        const POINTS_COLLECTION_PATH = `artifacts/${appId}/public/data/pontos`;
+const LINES_COLLECTION_PATH = `artifacts/${appId}/public/data/linhas`;
+        // Estrutura global para armazenar todas as associações Linha-Parada
+        let allLinesData = [];
+// --- Inicialização e Autenticação ---
+        try {
+            const app = initializeApp(firebaseConfig);
+auth = getAuth(app);
+            db = getFirestore(app);
+            setLogLevel('silent');
+
+            if (initialAuthToken) {
+                signInWithCustomToken(auth, initialAuthToken).catch(e => {
+                    console.error("Erro ao autenticar com token customizado:", e);
+                    signInAnonymously(auth);
+                });
+} else {
+                signInAnonymously(auth);
+}
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    userId = user.uid;
+                    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                 
+       initializeAppLogic();
+                    } else {
+                        document.addEventListener('DOMContentLoaded', initializeAppLogic);
+                    }
+                } else {
+        
+            showMessage('Usuário deslogado. Redirecionando...', 'error');
+                    setTimeout(() => window.location.href = "../passageiro/login.html", 1000);
+                }
+            });
+} catch (initError) {
+            console.error("Erro ao inicializar Firebase:", initError);
+}
+
+
+        // ==========================================================
+        // 💾 PASSO 2: FUNÇÕES UTILS E LÓGICA DA TELA
+        // ==========================================================
+
+        const listPtsEl = document.getElementById('listPts');
+const statusMessageEl = document.getElementById('statusMessage');
+        const addPointForm = document.getElementById('addPointForm');
+        const openAddPointFormBtn = document.getElementById('openAddPointFormBtn');
+        const newPointFormContainer = document.getElementById('newPointFormContainer');
+        const cancelAddPointBtn = document.getElementById('cancelAddPointBtn');
+/** Exibe mensagens de status na UI */
+        function showMessage(text, type = 'info') {
+            if (!statusMessageEl) return;
+statusMessageEl.textContent = text;
+            // Mantém a classe 'status-message' e adiciona 'error' ou 'success' para estilização via CSS
+            statusMessageEl.className = `status-message ${type}`;
+}
+
+        /** Alterna a visibilidade do formulário de cadastro */
+        function toggleForm() {
+            const isHidden = newPointFormContainer.style.display === 'none' ||
+newPointFormContainer.style.display === '';
+            newPointFormContainer.style.display = isHidden ? 'block' : 'none';
+            openAddPointFormBtn.style.display = isHidden ? 'none' : 'block';
+if (!isHidden) {
+                addPointForm.reset();
+}
+        }
+
+        /** Carrega todos os dados de linhas e suas paradas
+          * e popula a variável global allLinesData para cruzamento.
+*/
+        async function fetchAllLineData() {
+            showMessage('Buscando dados de Linhas e Horários para cruzamento...', 'info');
+const linesCollectionRef = collection(db, LINES_COLLECTION_PATH);
+            try {
+                const linesSnapshot = await getDocs(linesCollectionRef);
+// Cria um array de promessas, onde cada promessa busca a subcoleção 'paradas'
+                const linePromises = linesSnapshot.docs.map(async (lineDoc) => {
+                    const lineId = lineDoc.id;
+                    const lineData = lineDoc.data();
+                    
+const stopsColRef = collection(db, LINES_COLLECTION_PATH, lineId, 'paradas');
+
+                    // Busca one-time (getDocs) para a subcoleção de paradas
+                    const stopsSnapshot = await getDocs(stopsColRef);
+
+                    // Retorna 
+                    
+// um array de objetos de parada para esta linha
+
+
+                    return stopsSnapshot.docs.map(stopDoc => ({
+                        lineId: lineId,
+                        lineNumber: lineData.number,
+                  
+      pointId: stopDoc.data().pointId,
+                        schedule: stopDoc.data().schedule
+                    }));
+                });
+// Espera que todas as buscas de subcoleções sejam concluídas e achata o array
+                const resultsArrays = await Promise.all(linePromises);
+allLinesData = resultsArrays.flat();
+
+                showMessage(`Dados de Linhas carregados. Carregando Pontos...`, 'info');
+} catch (e) {
+                console.error("ERRO CRÍTICO ao buscar dados de Linhas/Paradas:", e);
+showMessage('Erro ao carregar dados das Linhas. A exibição de horários pode estar incompleta. Verifique as regras de segurança do Firestore.', 'error');
+allLinesData = [];
+            }
+        }
+
+        /** Inicializa listeners e carregamento de dados */
+        async function initializeAppLogic() {
+            // Verifica se o acesso é ADM novamente (guardrail)
+            if (localStorage.getItem('userRole') !== 'adm') return;
+// 1. Carrega os dados de Linhas/Horários antes de tudo
+            await fetchAllLineData();
+// 2. Inicia o listener de Pontos
+            loadPoints();
+openAddPointFormBtn.addEventListener('click', toggleForm);
+            cancelAddPointBtn.addEventListener('click', toggleForm);
+            addPointForm.addEventListener('submit', handleAddPoint);
+
+            showMessage('Carregando pontos de parada...', 'info');
+}
+
+        // ==========================================================
+        // 🔄 PASSO 3: CRUD DOS PONTOS
+        // ==========================================================
+
+        /**
+         * Adiciona um novo ponto de parada.
+*/
+        async function handleAddPoint(e) {
+            e.preventDefault();
+const address = e.target.address.value.trim();
+            const commonName = e.target.commonName.value.trim();
+
+            if (!address || !commonName) {
+                showMessage('Preencha o endereço e o nome usual.', 'error');
+return;
+            }
+
+            try {
+                // CORREÇÃO: Adiciona 'name' e 'endereco' para que o ADM Linhas encontre o nome descritivo.
+const docRef = await addDoc(collection(db, POINTS_COLLECTION_PATH), {
+                    name: commonName, // Adicionado
+                    endereco: address, // Adicionado
+                    address: address,
+                    commonName: commonName,
+      
+              createdAt: new Date().toISOString()
+                });
+showMessage(`Ponto '${commonName}' cadastrado com sucesso!`, 'success');
+                toggleForm();
+            } catch (error) {
+                console.error("Erro ao adicionar ponto:", error);
+showMessage('Erro ao adicionar ponto. Verifique as permissões de escrita.', 'error');
+}
+        }
+
+        /**
+         * Atualiza um ponto de parada existente.
+*/
+        async function handleUpdatePoint(pointId, newData) {
+            if (!newData.address || !newData.commonName) {
+                showMessage('Preencha o endereço e o nome usual.', 'error');
+return;
+            }
+
+            try {
+                const pointDocRef = doc(db, POINTS_COLLECTION_PATH, pointId);
+// Atualiza 'name' e 'endereco' (para compatibilidade) e 'address' e 'commonName'
+                await updateDoc(pointDocRef, {
+                    name: newData.commonName,
+                    endereco: newData.address,
+                    address: newData.address,
+         
+           commonName: newData.commonName,
+                    updatedAt: new Date().toISOString() // Opcional: registrar a atualização
+                });
+showMessage(`Ponto '${newData.commonName}' atualizado com sucesso!`, 'success');
+            } catch (error) {
+                console.error("Erro ao atualizar ponto:", error);
+showMessage('Erro ao atualizar ponto. Verifique as permissões.', 'error');
+            }
+        }
+
+        /**
+         * Deleta um ponto de parada.
+*/
+        async function deletePoint(pointId, name) {
+            if (!window.confirm(`Tem certeza que deseja EXCLUIR permanentemente o ponto '${name}'?`)) {
+                return;
+}
+
+            try {
+                await deleteDoc(doc(db, POINTS_COLLECTION_PATH, pointId));
+showMessage(`Ponto '${name}' excluído com sucesso.`, 'success');
+            } catch (error) {
+                console.error("Erro ao deletar ponto:", error);
+showMessage('Erro ao deletar ponto. Verifique as permissões.', 'error');
+            }
+        }
+
+        /**
+         * Renderiza um único ponto na lista, incluindo as linhas que o atendem.
+*/
+        function renderPoint(pointDoc) {
+            const pointId = pointDoc.id;
+const data = pointDoc.data();
+
+            // Usamos 'li' com a classe 'line-card' para o estilo do card
+            const li = document.createElement('li');
+li.classList.add('line-card'); // Usa a classe que define o estilo do CARD (fundo branco, borda)
+            li.dataset.id = pointId;
+// 1. Encontrar linhas que param neste ponto
+            const matchingLines = allLinesData.filter(lineStop =>
+                lineStop.pointId === pointId
+            );
+// 2. Criar HTML para a seção de Linhas/Horários
+            let linesHtml = '';
+let schedulesHtml = '';
+
+            if (matchingLines.length > 0) {
+                // Monta o HTML da lista de linhas que atendem este PONTO
+                const linesListHtml = matchingLines.map(match => {
+                    // Renderiza os horários usando a classe original `.schedule-item`
+
+                
+    const scheduleItems = match.schedule.split(',').map(hour =>
+                        `<span class="schedule-item">${hour.trim()}</span>`
+                    ).join('');
+
+                    // Acumula todos os horários (REMOVIDO: NÃO MAIS USADO NA SAÍDA)
+
+                 
+   schedulesHtml += scheduleItems;
+
+                    // *** FIX: Substituído o espaço comum por &nbsp; para garantir a separação ***
+                    return `
+                        <li>
+                 
+           Linha&nbsp;<strong>${match.lineNumber}</strong>:
+                            <div class="schedule-line-wrapper">
+                                ${scheduleItems}
+                            
+</div>
+                        </li>
+                    `;
+}).join('');
+                linesHtml = `
+                    <div class="line-stops">
+                        <h4 class="sub-title-lines">Linhas:</h4>
+                        <ul class="stop-list">
+                          
+  ${linesListHtml}
+                        </ul>
+                    </div>
+                `;
+} else {
+                linesHtml = '<p class="info-text-small">Nenhuma linha cadastrada atende este ponto.</p>';
+}
+
+            // Verifica se há horários para exibir
+            // *** REMOVIDO: O BLOCO DE HORÁRIOS GERAL (CIRCULADO) FOI REMOVIDO ***
+            schedulesHtml = '';
+// *** Estrutura de Visualização e Edição ***
+            li.innerHTML = `
+                <div class="line-info-header view-mode">
+                    <span>Nome: <strong class="view-commonName">${data.commonName}</strong></span>
+                    <div>
+                   
+     <button class="btn-action-small btn-secondary edit-btn">Editar</button>
+                        <button class="delete-btn" data-id="${pointId}" data-name="${data.commonName}">Excluir</button>
+                    </div>
+                </div>
+                <div class="view-mode">
+            
+        <p><strong>Endereço:</strong> <span class="view-address">${data.address}</span></p>
+                    ${linesHtml}
+                    ${schedulesHtml} 
+                </div>
+
+                <form class="edit-form" style="display: none;">
+              
+      <p><strong>Editando Ponto:</strong></p>
+                    <div class="input-group">
+                        <label for="edit_commonName_${pointId}">Nome Usual:</label>
+                        <input name="edit_commonName" id="edit_commonName_${pointId}" value="${data.commonName}" required>
+                  
+  </div>
+                    <div class="input-group">
+                        <label for="edit_address_${pointId}">Endereço Completo:</label>
+                        <input name="edit_address" id="edit_address_${pointId}" value="${data.address}" required>
+                    </div>
+   
+                 <div class="form-actions" style="margin-top: 15px;">
+                        <button type="submit" class="btn-primary btn-action-small">Salvar</button>
+                        <button type="button" class="btn-secondary btn-action-small cancel-edit-btn">Cancelar</button>
+     
+           </form>
+            `;
+listPtsEl.appendChild(li);
+
+            // 3. Adicionar Listeners de Evento para CRUD
+
+            // A. Listener para o botão EXCLUIR
+            li.querySelector('.delete-btn').addEventListener('click', async (e) => {
+                const id = e.target.dataset.id;
+                const name = e.target.dataset.name;
+                await deletePoint(id, name);
+
+  
+          });
+// B. Listener para o botão EDITAR (alternar modo) e CANCELAR
+            const viewModes = li.querySelectorAll('.view-mode');
+const editForm = li.querySelector('.edit-form');
+            const editBtn = li.querySelector('.edit-btn');
+            const cancelEditBtn = li.querySelector('.cancel-edit-btn');
+const toggleEditMode = (isEditing) => {
+                viewModes.forEach(el => el.style.display = isEditing ? 'none' : '');
+editForm.style.display = isEditing ? 'block' : 'none';
+                // Oculta o botão de ADICIONAR NOVO PONTO enquanto edita
+                document.getElementById('openAddPointFormBtn').style.display = isEditing ?
+'none' : 'block';
+            };
+
+            editBtn.addEventListener('click', () => toggleEditMode(true));
+            cancelEditBtn.addEventListener('click', () => toggleEditMode(false));
+// C. Listener para o SUBMIT do formulário de EDIÇÃO
+            editForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const newCommonName = e.target.edit_commonName.value.trim();
+                const newAddress = e.target.edit_address.value.trim();
+
+                await handleUpdatePoint(pointId, {
+   
+                 commonName: newCommonName,
+                    address: newAddress
+                });
+                // Após salvar, retorna para o modo de visualização (a atualização em tempo real do Firestore já deve re-renderizar o ponto)
+         
+       // Se a atualização for bem-sucedida, você pode forçar o modo de visualização:
+                toggleEditMode(false);
+            });
+}
+
+        /**
+         * Carrega todos os pontos em tempo real.
+*/
+        function loadPoints() {
+            if (!userId) return;
+const q = collection(db, POINTS_COLLECTION_PATH);
+
+            // Listener de tempo real para a coleção principal de Pontos
+            onSnapshot(q, (querySnapshot) => {
+                listPtsEl.innerHTML = ''; // Limpa a lista existente
+                showMessage(`Pontos de Parada: ${querySnapshot.size} encontrados.`, 'info');
+
+                querySnapshot.docs.forEach(renderPoint);
+
+
+          
+  }, (error) => {
+                console.error("Erro ao carregar pontos em tempo real:", error);
+                showMessage('Erro ao carregar pontos do Firestore.', 'error');
+            });
+}
+    </script>
+
+    <div class="content-wrapper">
+
+        <div class="top-banner">
+            <a href="adm_home.html">
+                <img src="/frontend/assets/logo/logo.png" alt="Logo"></a>
+        </div>
+        <div class="linha-degrade"></div>
+
+        <div class="menu-icon" onclick="openMenu()">
+            <img src="/frontend/assets/icones/icone_menu.png" alt="Menu" class="menu-img">
+        </div>
+
+ 
+       <div id="sideMenu" class="side-menu">
+            <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+
+            <a href="adm_home.html">Página Inicial</a>
+            <a href="adm_paineis.html">Painéis</a>
+            <a href="adm_pontos.html">Pontos</a>
+            <a href="adm_linhas.html">Linhas</a>
+        </div>
+        <br>
+       
+ <div class="container" style="padding-top: 20px;">
+            <div class="painel-header">
+                <h1>Administração de Pontos de Parada</h1>
+                <button id="openAddPointFormBtn" class="btn-primary"> + Adicionar Novo Ponto</button>
+            </div>
+            <div id="statusMessage" class="status-message">Aguardando autenticação...</div>
+
+            <div id="newPointFormContainer" 
+class="form-section 
+card" style="display: 
+ 
+none;
+            margin-bottom: 30px;">
+                <h2>Cadastrar Novo Ponto</h2>
+                <form id="addPointForm">
+                    <div class="input-group">
+                        <label for="commonName">Nome Usual do Ponto (Reconhecimento):</label>
+         
+               <input name="commonName" id="commonName" placeholder="Ex: Praça Central, 
+Rodoviária" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="address">Endereço Completo do Ponto:</label>
+         
+               <input name="address" id="address" placeholder="Ex: Av.
+Brasil, 123 - Centro" required>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Salvar Ponto</button>
+                        <button type="button" id="cancelAddPointBtn" class="btn-secondary">Cancelar</button>
+ 
+                   </div>
+                </form>
+            </div>
+
+            <ul id="listPts">
+                <li>Carregando...</li>
+
+            </ul>
+        </div>
+    
+</div>
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section links">
+                <h3 class="subtitulo">Mapa do site</h3>
+                <ul>
+                    <li><a href="adm_home.html">Página Inicial</a></li>
+               
+     <li><a href="adm_paineis.html">Painéis</a></li>
+                    <li><a href="adm_pontos.html">Pontos</a></li>
+                    <li><a href="adm_linhas.html">Linhas</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section contact">
+          
+      <h3 class="subtitulo">Contato</h3>
+                <p><img src="/frontend/assets/icones/icone_email.png" alt="" width="24px">|
+intelibus@gmail.com
+                </p>
+                <p><img src="/frontend/assets/icones/icone_telefone.png" alt="icon telefone" width="24px">|
+(19)
+                    0000-0000</p>
+            </div>
+
+            <div class="footer-section social-media">
+                <h3 class="subtitulo">Redes Sociais </h3>
+                <p><img src="/frontend/assets/icones/icone_instagram.png" alt="" width="24px"><a
+                
+        href="https://www.instagram.com/">instagram</a>
+                </p>
+                <p><img src="/frontend/assets/icones/icone_facebook.png" alt="icon telefone" width="24px"><a
+                        href="https://www.facebook.com/?locale=pt_BR">facebook</a></p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+   
+         <p>&copy;
+                2025 INTELIBUS - CNPJ 00 000 000/0000-00. |
+Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+</script>
+    <script>
+        // Funções para abrir e fechar o menu lateral
+        function openMenu() {
+            document.getElementById("sideMenu").style.width = "250px";
+}
+
+        function closeMenu() {
+            document.getElementById("sideMenu").style.width = "0";
+}
+    </script>
+</body>
+
+</html>

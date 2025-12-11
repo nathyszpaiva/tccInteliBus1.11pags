@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro</title>
+    <link rel="stylesheet" href="/frontend/css/style.css">
+
+    <style>
+        /* ========================================================== */
+        /* 📌 ESTRUTURA PARA FIXAR O FOOTER NO FINAL (Sticky Footer) */
+        /* ========================================================== */
+        :root {
+            /* Adicionado para os links do footer */
+            --cor-link-footer: #0c48a1;
+        }
+
+        html,
+        body {
+            height: 100%;
+            /* Garante 100% da altura da viewport */
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            /* Organiza o conteúdo verticalmente */
+            background: #f5f5f5;
+            /* Cor de fundo leve, se for o padrão */
+        }
+
+        .content-wrapper {
+            flex: 1;
+            /* 🔥 Empurra o footer para o fim, ocupando o espaço restante */
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 20px;
+        }
+
+        /* 🖼️ DIV CONTAINER (Estilo do adm_home para centralizar e limitar a largura) */
+        .container {
+            max-width: 1200px;
+            width: 90%;
+            margin: 0 auto;
+            padding-top: 20px;
+        }
+
+        /* ========================================================== */
+        /* 🏗️ ESTILOS DO FOOTER (Copiado de adm_home.txt para consistência) */
+        /* ========================================================== */
+        .footer {
+            background-color: #ffffff;
+            color: #000000;
+            padding: 40px 20px 20px;
+            font-family: Arial, sans-serif;
+            border-top: 1px solid #ddd;
+        }
+
+        .footer-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: auto;
+            gap: 40px;
+        }
+
+        .footer-section {
+            flex: 1 1 300px;
+        }
+
+        .footer-section h3,
+        .footer-section .subtitulo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #000000;
+            margin-bottom: 15px;
+        }
+
+        .footer-section.contact p {
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .footer-section img {
+            margin-right: 8px;
+            min-width: 20px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .footer-section a {
+            text-decoration: none;
+            color: #555;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .footer-section a:hover {
+            color: var(--cor-link-footer);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 15px;
+            font-size: 14px;
+            color: #777;
+            border-top: 1px solid #eee;
+        }
+
+        /* Mantenha este estilo se o 'hidden' não estiver no seu style.css */
+        .hidden {
+            display: none;
+        }
+
+        /* Estilos de Utilidade para o Card (copiado do Login para consistência) */
+        .card {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        /* Estilos dos campos (para garantir que fiquem alinhados e estilizados) */
+        .card label {
+            display: block;
+            text-align: left;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .card input[type="email"],
+        .card input[type="text"],
+        .card input[type="password"],
+        .card select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .card button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            /* Cor primária */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+
+        .card button:hover {
+            background-color: #0056b3;
+        }
+
+        /* 🚀 ESTILO DO LINK 'LOGUE' (Corrigido para remover a linha em todos os estados) */
+        .card p a {
+            color: #007bff !important;
+            /* Usa a cor primária */
+            text-decoration: none !important;
+            /* Remove a linha debaixo */
+            font-weight: bold;
+            /* Deixa o link mais destacado */
+            transition: color 0.3s;
+        }
+
+        .card p a:hover {
+            color: #0056b3 !important;
+            /* Escurece um pouco no hover */
+            text-decoration: none !important;
+            /* GARANTE que a linha não volte no hover */
+        }
+
+        /* FIM DO ESTILO DO LINK */
+    </style>
+</head>
+
+<body>
+
+    <script type="module">
+        // ==========================================================
+        // SCRIPT DO FIREBASE, AUTH E FIRESTORE
+        // ==========================================================
+
+        // Importa as funções necessárias do Firebase SDK Modular
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+        // Sua configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyC1HmcMKzovu2LM7RmxBq5f6zsun76YZIs",
+            authDomain: "intelibustcc.firebaseapp.com",
+            projectId: "intelibustcc",
+            storageBucket: "intelibustcc.firebasestorage.app",
+            messagingSenderId: "212399344112",
+            appId: "1:212399344112:web:03dbb7d367f5542dc83535",
+            measurementId: "G-RWN8EMEW63"
+        };
+
+        // Inicializa o Firebase
+        const app = initializeApp(firebaseConfig);
+
+        // Inicializa os serviços e os torna globais para o script abaixo
+        window.auth = getAuth(app);
+        window.db = getFirestore(app);
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.setDoc = setDoc;
+        window.doc = doc;
+    </script>
+
+    <div class="content-wrapper">
+        <div class="top-banner">
+            <a href="cadastro.html">
+                <img src="/frontend/assets/logo/logo.png" alt="Logo"></a>
+        </div>
+        <div class="linha-degrade"></div>
+
+        <div class="container">
+            <div class="card">
+
+                <h2>Cadastro</h2>
+
+                <div id="cadastroMessage" style="margin-bottom: 15px;"></div>
+
+                <label for="role">Selecione o tipo de cadastro</label>
+                <select id="role">
+                    <option value="">Selecione...</option>
+                    <option value="usuario">Usuário</option>
+                    <option value="adm">Administrador</option>
+                </select>
+
+
+                <div id="camposUsuario" class="hidden">
+                    <label for="name_u">Nome</label>
+                    <input type="text" id="name_u" name="name_u" placeholder="Digite seu nome" required>
+
+                    <label for="email_u">Email</label>
+                    <input type="email" id="email_u" name="email_u" placeholder="Digite seu email" required>
+
+                    <label for="cpf_u">CPF</label>
+                    <input type="text" id="cpf_u" name="cpf_u" placeholder="xxx.xxx.xxx-xx" required maxlength="14"
+                        onkeypress="return event.charCode >= 48 && event.charCode <= 57" onkeyup="formatarCPF(this)">
+
+                    <label for="password_u">Senha</label>
+                    <input type="password" id="password_u" name="password_u" placeholder="Digite sua senha" required>
+                    <button data-role="usuario" id="cadastrarBtn_u">Cadastrar Usuário</button>
+                </div>
+
+                <div id="camposAdm" class="hidden">
+                    <label for="name_a">Nome</label>
+                    <input type="text" id="name_a" name="name_a" placeholder="Nome do Administrador" required>
+
+                    <label for="email_a">Email</label>
+                    <input type="email" id="email_a" name="email_a" placeholder="Email Administrativo" required>
+
+                    <label for="codigo_a">Código de Acesso Secreto</label>
+                    <input type="password" id="codigo_a" name="codigo_a" placeholder="Código de Segurança" required>
+
+                    <label for="password_a">Senha</label>
+                    <input type="password" id="password_a" name="password_a" placeholder="Digite sua senha" required>
+                    <button data-role="adm" id="cadastrarBtn_a">Cadastrar Administrador</button>
+                </div>
+
+                <p style="margin-top: 15px;">Já tem uma conta? <a href="login.html">Logue</a></p>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="footer-container">
+
+            <div class="footer-section about">
+                <p>A Intelibus é um sistema de transporte coletivo inteligente, com foco em melhorar a experiência do
+                    usuário, otimizar a operação dos ônibus e modernizar a mobilidade urbana.</p>
+            </div>
+
+            <div class="footer-section contact">
+                <h3 class="subtitulo">Contato</h3>
+                <p><img src="/frontend/assets/icones/icone_email.png" alt="Icone E-mail"> intelibus@gmail.com</p>
+                <p><img src="/frontend/assets/icones/icone_telefone.png" alt="Icone Telefone"> (19) 0000-0000</p>
+            </div>
+
+            <div class="footer-section social-media">
+                <h3 class="subtitulo">Redes Sociais </h3>
+                <p><img src="/frontend/assets/icones/icone_instagram.png" alt="Icone Instagram"><a
+                        href="https://www.instagram.com/"> Instagram</a></p>
+                <p><img src="/frontend/assets/icones/icone_facebook.png" alt="Icone Facebook"><a
+                        href="https://www.facebook.com/?locale=pt_BR"> Facebook</a></p>
+            </div>
+
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 INTELIBUS - CNPJ 00 000 000/0000-00. | Todos os direitos reservados.</p>
+        </div>
+    </footer>
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+    </script>
+
+    <script>
+        // ==========================================================
+        // 💾 PASSO 2: LÓGICA DE CADASTRO NO FIREBASE (COM VALIDAÇÕES CORRIGIDAS)
+        // ==========================================================
+
+        // 🚨 CÓDIGO SECRETO PARA CADASTRO DE ADMINISTRADOR
+        const CODIGO_MESTRE_ADM = "ADM_InteliBus@2025!";
+
+        const roleSelect = document.getElementById("role");
+        const camposUsuario = document.getElementById("camposUsuario");
+        const camposAdm = document.getElementById("camposAdm");
+        const messageDiv = document.getElementById("cadastroMessage");
+
+        const cadastrarBtnUsuario = document.getElementById("cadastrarBtn_u");
+        const cadastrarBtnAdm = document.getElementById("cadastrarBtn_a");
+
+        // Lógica para mostrar/esconder campos
+        roleSelect.addEventListener("change", () => {
+            const role = roleSelect.value;
+
+            camposUsuario.classList.add("hidden");
+            camposAdm.classList.add("hidden");
+
+            if (role === "usuario") camposUsuario.classList.remove("hidden");
+            if (role === "adm") camposAdm.classList.remove("hidden");
+
+            messageDiv.textContent = "";
+        });
+
+        /**
+         * Função principal para lidar com o cadastro de qualquer tipo de perfil.
+         * @param {string} role - O papel do usuário ('usuario', 'adm').
+         */
+        async function handleCadastro(role) {
+            messageDiv.textContent = "";
+            messageDiv.style.color = 'red';
+
+            let email, password, dadosAdicionais = {};
+
+            // 1. Coleta os dados baseados no papel (Role) e executa validações específicas
+            try {
+                if (role === "usuario") {
+                    const nome = document.getElementById("name_u").value;
+                    email = document.getElementById("email_u").value;
+                    const cpfComMascara = document.getElementById("cpf_u").value;
+                    password = document.getElementById("password_u").value;
+
+                    // Remove máscara para validar o número de dígitos (11)
+                    const cpfApenasDigitos = cpfComMascara.replace(/\D/g, "");
+
+                    dadosAdicionais = {
+                        nome: nome,
+                        // Salva no Firestore apenas os dígitos, sem a máscara
+                        cpf: cpfApenasDigitos,
+                    };
+
+                    // 🛑 VALIDAÇÃO DE CAMPOS VAZIOS (USUÁRIO)
+                    if (!nome || !email || !cpfComMascara || !password) {
+                        // Lançando o erro de validação
+                        throw { code: 'app/incomplete-fields', message: "Por favor, preencha todos os campos obrigatórios para o cadastro de Usuário." };
+                    }
+
+                    // 🚨 VALIDAÇÃO OBRIGATÓRIA: Verifica se o CPF tem EXATAMENTE 11 dígitos
+                    if (cpfApenasDigitos.length !== 11) {
+                        // Lançando o erro de validação
+                        throw { code: 'app/invalid-cpf-length', message: "Para cadastrar, o CPF deve conter exatamente 11 dígitos (sem contar pontos e hífen)." };
+                    }
+
+                } else if (role === "adm") {
+                    const nome = document.getElementById("name_a").value;
+                    email = document.getElementById("email_a").value;
+                    const codigoAcesso = document.getElementById("codigo_a").value;
+                    password = document.getElementById("password_a").value;
+
+                    dadosAdicionais = {
+                        nome: nome,
+                        codigoAcesso: codigoAcesso,
+                    };
+
+                    // 🛑 VALIDAÇÃO DE CAMPOS VAZIOS (ADMINISTRADOR)
+                    if (!nome || !email || !codigoAcesso || !password) {
+                        throw { code: 'app/incomplete-fields', message: "Por favor, preencha todos os campos obrigatórios para o cadastro de Administrador." };
+                    }
+
+                    // Valida o código secreto do Administrador
+                    if (dadosAdicionais.codigoAcesso !== CODIGO_MESTRE_ADM) {
+                        throw { code: 'app/invalid-admin-code', message: "O Código de Acesso Secreto está incorreto." };
+                    }
+
+                } else {
+                    return;
+                }
+            } catch (e) {
+                // 🔥 CORREÇÃO: Trata o erro de validação localmente (campos vazios/CPF)
+                // e exibe a mensagem diretamente na tela, sem sair para o console.
+
+                let errorMessage = "Erro ao coletar dados do formulário.";
+
+                if (e.code) {
+                    switch (e.code) {
+                        case 'app/invalid-cpf-length':
+                        case 'app/incomplete-fields':
+                        case 'app/invalid-admin-code':
+                            errorMessage = e.message;
+                            break;
+                        default:
+                            errorMessage = "Erro interno de validação: " + e.message;
+                    }
+                }
+
+                messageDiv.style.color = 'red';
+                messageDiv.textContent = errorMessage;
+                console.error("Erro na validação local:", e.code, e.message);
+                return; // Sai da função aqui, impedindo o resto do código de rodar
+            }
+
+            // Validações básicas de autenticação (aplicáveis a todos)
+            if (!email || !password || !email.includes('@')) {
+                messageDiv.textContent = "Por favor, preencha o email e senha corretamente.";
+                return;
+            }
+
+            if (password.length < 6) {
+                messageDiv.textContent = "A senha deve ter pelo menos 6 caracteres.";
+                return;
+            }
+
+            // 2. Execução do Cadastro no Firebase
+            try {
+                // Cria o usuário no Firebase Authentication
+                const userCredential = await window.createUserWithEmailAndPassword(window.auth, email, password);
+                const user = userCredential.user;
+
+                // Salva os dados adicionais no Firestore
+                await window.setDoc(window.doc(window.db, "usuarios", user.uid), {
+                    ...dadosAdicionais,
+                    email: email,
+                    role: role,
+                    dataCadastro: new Date()
+                });
+
+                messageDiv.style.color = 'green';
+                messageDiv.textContent = `Cadastro de ${role} realizado com sucesso! Redirecionando...`;
+
+                setTimeout(() => {
+                    window.location.href = "login.html";
+                }, 3000);
+
+            } catch (error) {
+                // 3. Este bloco CATCH é EXCLUSIVO para erros do FIREBASE (auth, network, etc.)
+                console.error("Erro no cadastro:", error.code, error.message);
+
+                let errorMessage = "Ocorreu um erro desconhecido no cadastro.";
+
+                // Trata erros específicos do Firebase
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = "Este email já está cadastrado.";
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = "O formato do email é inválido.";
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = "A senha é muito fraca (mínimo 6 caracteres).";
+                        break;
+                    default:
+                        errorMessage = "Erro: " + error.message;
+                }
+
+                messageDiv.style.color = 'red';
+                messageDiv.textContent = errorMessage;
+            }
+        }
+
+        // 3. Associa os botões à função unificada
+        cadastrarBtnUsuario.addEventListener("click", () => handleCadastro('usuario'));
+        cadastrarBtnAdm.addEventListener("click", () => handleCadastro('adm'));
+
+    </script>
+
+    <script>
+        // Função para formatar o CPF com a máscara (mantida)
+        function formatarCPF(campo) {
+            var valor = campo.value;
+
+            // 1. Remove qualquer caractere que não seja dígito
+            valor = valor.replace(/\D/g, "");
+
+            // 2. Limita a 11 dígitos (evita que o usuário digite mais)
+            if (valor.length > 11) {
+                valor = valor.substring(0, 11);
+            }
+
+            // 3. Aplica a máscara (adiciona pontos e hífen)
+            if (valor.length > 3) {
+                // xxx.xxx....
+                valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+            }
+            if (valor.length > 6) {
+                // xxx.xxx.xxx....
+                valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+            }
+            if (valor.length > 9) {
+                // xxx.xxx.xxx-xx
+                valor = valor.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+            }
+
+            campo.value = valor;
+        }
+    </script>
+</body>
+
+</html>
